@@ -1,0 +1,1204 @@
+# About
+
+## What Is IOpy?
+
+IOpy is a python-based package for solving the equations of motion of coupled oscillators which are in contact with thermal baths. These equations which are in the form of Langevin equations (or quantum Langevin equations in quantum limit) appear in many research areas in physics. Specifically, in optomechanics, which is the study of interaction of light with mechanical oscillators, this problem forms the essence of the theory. Finding the solutions of Langevin equations in different optomechanical systems can help with discovering and understanding novel phenomena. However, the procedure of finding these solutions is similar in many cases ([input-output formalism](http://127.0.0.1:8000/theory/#input-output-formalism), which is where the name IOpy is coming from) and the essential difference between them is the difference between the physical setups. Moreover, in complex setups the calculations necessary to find the solutions can be hard and tedious to do by hand (for example inverting matrices with large dimensions).
+
+On the other hand, in many problems in optomechanics there are a lot of physical phenomena which are involved in the dynamics. For newcomers to the field, like students who want to learn optomechanics, it can be confusing to distinguish between the different effects involved in the dynamics. Looking for a solution to resolve the two mentioned issues was the motivation to write this code.
+
+With IOpy, you can define your physical setup very fast and without the need for going through the details. Further more you can visualize the results in a way which can help people to test their theoretical results and also help newcomers to grasp the elements of the optomechanics. For example to see the emission spectrum of a hot optical resonator you can define your optical mode in a single line:
+
+```python
+a = Mode(name = 'a', omega = 5e9 *2*np.pi)
+```
+
+And then defining the thermal bath and the driving field can be done each in a single line:
+
+```python
+a_inex = Input(name = 'ex', a, kappa = 0.2e6 *2*np.pi,
+               kind = 'drive', omega_drive = 5e9 *2*np.pi,
+               bath_temp = 2e-5)
+a_in0 = Input('0', a, kappa = 0.3e6 *2*np.pi, kind = 'bath',
+              bath_temp = 10e-3)
+```
+
+And finally defining the system, the output port and the spectrum:
+
+```python
+sys_cav = System([a], [a_in0,  a_inex], [])
+a_outex = Output(sys_cav, a_inex)
+spec = me.spectrum(omegas, me.PowerMeasurement(a_outex),
+                   components = False, plot = True)
+```
+And the result would be:
+
+![Simple Cavity Spectrum](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/Simple Cavity/simple_cavity_spectrum.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Simple cavity output spectrum}
+\end{figure}
+
+<!--
+<p align="center">
+  <img width="460" src="\Simple Cavity\simple_cavity_spectrum.png">
+</p>
+-->
+
+A more detailed explanation of this example as well as more examples with respect to optomechanics are available on the [Examples](http://127.0.0.1:8000/Examples/) page.
+
+## Structure of IOpy
+IOpy consists out of four scripts which each serving a special purpose:
+
+`elements`: For defining different components of the physical system (modes, couplings, input-output fields and the system)
+
+`DCnonlinearities`: For calculation of DC shifts in the system variables due to nonlinear effects.
+
+`measurement`: For calculating linear responses and power spectral densities.
+
+`plots`: For visualizing the measurements' results in graphs.
+
+## Installation
+To install IOpy you have to clone the IOpy repository on your local computer. The packages you need for using IOpy are `numpy`, `scipy` and `matplotlib`.
+
+<!--
+### Comments of Nick
+In general I would try to make a story around these two usecases.
+IOpy aims for:
+* testing and visulizing of theorectical models
+* being an educational tool to learn about the classical effects in optomechanics
+As an eyecatcher, it maybe makes sense to show a very short example of IOpy on the about page. (You can use the simple cavity example. But don't add a lot of explanation. This you will do in the examples section)
+Usually people (including me =) ) that want to use the software for the first time, just look at the first page to start.
+Also try to make a short comment about the structure of IOpy. What are the important files? And link to the section that gives a more detailed description.
+At the end you should have some links to installation and further examples.
+Installation:
+git pull
+and also name all the packages that have to installed to use iopy:
+numpy, scipy, matplotlib (These are all the classics)
+-->
+
+# Theory
+
+## Input-Output Formalism
+On this Page, the theory behind the IOpy calculations is introduced.
+
+There are different approaches to model open quantum systems. But the two most commonly used ones are the density matrix approach using master equations and the Langevin equations, which is also known as input-output theory. Input-output theory allows us to directly model the quantum fluctuations injected from any port into the system. Quantum Langevin equations are formulated on the level of the Heisenberg equations of motion describing the time evolution of any operator of the system. Moreover, in case of optical cavities any coherent laser drive that may be present can be taken into account. For more details see [Gardiner and Zoller (2004)](https://www.springer.com/de/book/9783540223016) and [Clerk et al. (2010)](http://dx.doi.org/10.1103/RevModPhys.82.1155).
+
+<br />For example, for an optical cavity which is driven by a coherent laser field with the detuning $\Delta$ from the cavity resonance frequency, via a coupling of $\kappa_{ex}$ and is also coupled to the environment through the dissipation rate of $\kappa_0$, the equations of motion can be written as
+
+$$\dot a = -\frac{\kappa}{2}a + i\Delta a + \sqrt{\kappa_{\text{ex}}}a_{\text{in},\text{ex}} + \sqrt{\kappa_{0}}a_{\text{in},0},$$
+
+where $\kappa = \kappa_0 + \kappa_{\text{ex}}$ is the total dissipation rate. $a_{\text{in},\text{ex}}$ and $a_{\text{in},0}$ are input operators of the driving field and the stochastic thermal field respectively. This equation can also be written in terms of quadrature operators
+
+$$\dot X = \Delta Y -\frac{\kappa}{2} X + \sqrt{\kappa_{\text{ex}}}\, X_{\text{in},\text{ex}} + \sqrt{\kappa_{0}}\, X_{\text{in},0}$$
+$$\dot Y = -\Delta X -\frac{\kappa}{2} Y + \sqrt{\kappa_{\text{ex}}}\, Y_{\text{in},\text{ex}} + \sqrt{\kappa_{0}}\, Y_{\text{in},0},$$
+
+where the quadrature operators are defined as
+
+$$X = \frac{a^\dagger + a}{\sqrt{2}},$$
+$$Y = i\frac{a^\dagger - a}{\sqrt{2}}.$$
+
+According to the input-output theory of open quantum systems, the output field (which in case of optical cavity can be the reflected or transmitted light through the cavity) is given by
+
+$$a_{\text{out}} = a_{\text{in}} - \sqrt{\kappa_{\text{ex}}}a.$$
+
+It can also be written in terms of quadratures
+$$X_{\text{out},\text{ex}} = X_{\text{in},\text{ex}} - \sqrt{\kappa_{\text{ex}}}\, X,$$
+$$Y_{\text{out},\text{ex}} = Y_{\text{in},\text{ex}} - \sqrt{\kappa_{\text{ex}}}\, Y.$$
+
+
+Any set of Langevin equations, linearized around a stationary solution, can in principle be written in the form
+
+$$\dot Z = \textbf{M}Z + \textbf{L}Z_{\text{in}} \tag{1},$$
+
+with the input-output relations
+$$Z_{\text{out}} = Z_{\text{in}} - \textbf{L}^TZ,$$
+
+where $Z$ is a vector containing the quadrature operators of different oscillators involved in the dynamics. $Z_{\text{in}}$ and $Z_{\text{out}}$ are vectors containing the quadrature operators of the input and output fields. For the optical cavity of the example above we have
+
+$$Z = \begin{pmatrix} X \\ Y \end{pmatrix},\quad Z_{\text{in}} = \begin{pmatrix} X_{\text{in},\text{ex}} \\ Y_{\text{in},\text{ex}} \\ X_{\text{in},0} \\ Y_{\text{in},0}\end{pmatrix},\quad Z_{\text{out}} = \begin{pmatrix} X_{\text{out},\text{ex}} \\ Y_{\text{out},\text{ex}} \\ X_{\text{out},0} \\ Y_{\text{out},0}\end{pmatrix}$$
+
+and
+
+$$\textbf{M} = \begin{pmatrix} -\frac{\kappa}{2} &\Delta
+                             \\-\Delta           &-\frac{\kappa}{2} \end{pmatrix}, \quad
+  \textbf{L}= \begin{pmatrix} \sqrt{\kappa_{\text{ex}}} &0 &\sqrt{\kappa_{0}} &0
+                            \\0 &\sqrt{\kappa_{\text{ex}}} &0 &\sqrt{\kappa_{0}}\end{pmatrix}.$$
+
+Due to the linearity of the equations one can take the Fourier transform of the equations and define a scattering matrix which relates the output fields to the input fields
+
+$$Z_{\text{out}}(\omega) = \textbf{S}(\omega)Z_{\text{in}}(\omega) \tag{2},$$
+
+where
+
+$$\textbf{S} = 1 + \textbf{L}^T(i\omega+\textbf{M})^{-1}\textbf{L} \tag{3}.$$
+
+
+
+## Measurements
+IOpy implements two different methods to characterize a linear system. They mimic closely the different types of measurements performed in the laboratory. First is the linear response of the system, which is similar to output of a vector network analyser (VNA). And, second is the spectrum of the output field, which is the same as the output of the spectrum analyser.
+
+### Linear Response
+According to the [Equation (2)](http://127.0.0.1:8000/theory/#input-output-formalism), a quadrature pair of any output port $i$ can be related to the quadrature pair of any input port $j$ using a submatrix of the scattering matrix
+
+$$\begin{pmatrix}X_{\text{out},i} \\ Y_{\text{out},i}\end{pmatrix} = \textbf{S}^{(ij)} \begin{pmatrix}X_{\text{in},j} \\ Y_{\text{in},j}\end{pmatrix}.$$
+
+Then the output field operator can be written as
+
+$$a_{\text{out},i} = \frac{X_{\text{out},i} + iY_{\text{out},i}}{\sqrt2} = (\textbf{S}^{(ij)}_{11} + i\textbf{S}^{(ij)}_{21})\frac{X_{\text{in},j}}{\sqrt2} +
+                                       (\textbf{S}^{(ij)}_{22} - i\textbf{S}^{(ij)}_{12})\frac{iY_{\text{in},j}}{\sqrt2}.$$
+
+
+In many cases the input field is a coherent drive with constant amplitude and $X_{\text{in},j}$ and $Y_{\text{in},j}$ are cosine part and sine part of it. Therefore, choosing any arbitrary values for the quadratures, as long as they satisfy the identity $X_{\text{in},j}^2+Y_{\text{in},j}^2=1$, will only impose a total phase shift to the response. By choosing $Y_{\text{in},j}$ to be zero, we consider this phase shift to be zero and $a_{\text{in},j}=X_{\text{in},j}/\sqrt2$. as a result, any phase response in the output is being calculated with respect to the input field.
+
+$$a_{\text{out},i} = (\textbf{S}^{(ij)}_{11} + i\textbf{S}^{(ij)}_{21})a_{\text{in},j}$$
+
+or in a more familiar notation
+$$\chi^{(ij)}(\omega) = \textbf{S}^{(ij)}_{11} + i\textbf{S}^{(ij)}_{21} \tag{4}.$$
+
+### Spectra
+In general for analyzing the spectrum of some measured signals, we can define a correlator using a measurement matrix $Q_{ij}$
+
+$$Q(\tau) = \langle Q_{ij}Z_{\text{out},i}(0)Z_{\text{out},j}(\tau)\rangle,$$
+
+where we have used the Einstein notation for the summations. The Fourier transform of this correlator would be the spectral density or spectrum
+
+$$S_{QQ}[\omega] = \int_{-\infty}^{\infty} Q(\tau) e^{i\omega\tau}d\tau.$$
+
+Due to the linearity of the expectation value and the integral, the spectrum can be rewritten in the following way
+
+$$ S_{QQ}[\omega] = \frac{1}{2\pi} Q_{ij}\int_{-\infty}^{\infty} \langle Z_{\text{out},i}(\omega_1)Z_{\text{out},j}(\omega) \rangle d\omega_1.$$
+
+According to [Equation (2)](http://127.0.0.1:8000/theory/#input-output-formalism), we can write the output signals in terms of input signals
+
+$$Z_{\text{out},i}(\omega) = S_{ik}(\omega)Z_{\text{in},k}(\omega),$$
+$$S_{QQ}[\omega] = \frac{1}{2\pi} Q_{ij}\int_{-\infty}^{\infty}S_{ik}(\omega_1)S_{jl}(\omega) \langle Z_{\text{in},k}(\omega_1)Z_{\text{in},l}(\omega) \rangle d\omega_1 \tag{5}.$$
+
+In general, the input signals can be correlated with each other and have complicated statistical behaviors. In many situations (such as thermal input noises) it's a good approximation to consider different sources to be uncorrelated. More precisely
+
+$$\langle Z_{\text{in},k}(\omega_1)Z_{\text{in},l}(\omega) \rangle = 2\pi\delta_{kl}\mathcal{S}_k^{\text{in}}(\omega)\delta(\omega_1+\omega),$$
+
+where $\mathcal{S}_k^{\text{in}}(\omega)$ is the spectral density of the $k^\text{th}$ input signal. Now, we can simplify Equation (5) to
+
+$$S_{QQ}[\omega] = Q_{ij}S_{ik}(-\omega)S_{jk}(\omega)\mathcal{S}_k^{\text{in}}(\omega). $$
+
+This final result is used in the calculations of IOpy. Here we make a remark on the summations by rearranging the terms in the following way
+
+$$S_{QQ}[\omega] = \sum_k \mathcal{S}_k^{\text{in}}(\omega) (\sum_{i,j} Q_{ij}S_{ik}(-\omega)S_{jk}(\omega)) = \sum_k c_k(\omega)\mathcal{S}_k^{\text{in}}(\omega).$$
+
+This illustrates that the spectrum can be expressed as a sum of the different input noise contributions.
+
+# Library
+
+In this section the different classes and functions of IOpy are introduced. IOpy consists of 4 main scripts `elements`, `measurement`, `DCnonlinearaity` and `plots`.
+
+## elements
+Objects and functions in this script are used to define the oscillating modes, input-output ports, couplings between different modes and finally the whole system of coupled oscillators.
+
+##### Class `Mode`
+This class represents the harmonic oscillators modes.
+```python
+'''
+Attributes:
+    name: name of the mode.
+    omega: resonance frequency of the mode in rad/sec.
+    kappa: mode total dissipation rate in rad/sec.
+    omega_rot: frequency at which the mode frame is
+               rotating in rad/sec.
+    driven: flag indicates whether the mode is driven or not.
+
+Properties:
+    omega_d():
+       returns the frequency of the field which is driving
+       the mode in rad/sec.
+'''
+```
+
+##### Class `Input`
+This class represents the input field coupled to a `Mode`. Inputs can be coherent drives (pumps) or thermal baths where the only difference between them is the rotating frame.
+
+```python
+'''
+Attributes:
+    name: name of the input field.
+    mode: the mode which the input is coupled to.
+    kind: flag which indicates the input is a pump or a thermal
+          bath. 'drive' for a pump and 'bath' for a thermal bath.
+    kappa: coupling rate to the mode in rad/sec.
+    omega_drive: frequency of the pump fields in rad/sec.
+    bath_temp: temperature of the bath or the pump in Kelvins.
+    nbar: average number of thermal photons in the input field.
+'''
+```
+
+`nbar` is calculated using the formula
+$$\bar n =\frac{1}{e^{\frac{\hbar\omega}{kT}}-1}.$$
+
+
+Methods:
+
+```python
+'''
+spectrum(self, omegas):
+    spectrum of the input field. Here we approximately take
+    the thermal spectrum to be constant near the mode frequency.
+    Args:
+        omegas: the frequencies vector at which we want to
+                calculate the spectrum.
+
+    Returns:
+            spectrum of the input field in units of number
+            of photons.
+'''
+```
+
+Currently for the input noise spectrum we consider the simplest case that it is a thermal spectrum. In future a feature will be added that allows for user defined spectra. This would make it possible to account for the classical noises of the lasers (phase noise and amplitude noise).
+
+##### Class `Coupling`
+This class represents the couplings between two `Mode`s using the coupling vector. The coupling vector $V_g$ is a 4-dimensional vector which is defined in a way that the interaction Hamiltonian for two coupled modes would be
+
+$$H_{\text{int}} = 2\hbar(V_{g,1}X_1X_2 + V_{g,1}X_1Y_2 + V_{g,1}Y_1X_2 + V_{g,1}Y_1Y_2).$$
+
+For optomechanics the couling vector is
+
+$$V_g = (g, 0, 0, 0).$$
+
+```python
+'''
+Attributes:
+    mode1: first mode.
+    mode2: second mode.
+    vg: coupling vector. a 4-d real vector.
+'''
+```
+
+Methods:
+
+```python
+'''
+contains_mode(self, mode):
+    indicates if the mode is involved in this coupling or not.
+
+    Args:
+        mode: the mode we want to look for.
+
+    Returns:
+       'True' if the mode is involved and 'False' for otherwise.
+'''
+```
+
+##### Class `System`
+Defines the complex system made of coupled `Mode`s and `Input`s. Its most important purpose is to calculate the scattering matrix.
+
+```python
+'''
+Attributes:
+    modes: an array of modes in the system.
+    inputs: an array of inputs of the system.
+    couplings: couplings between the modes of the system.
+    M: the M matrix in the relation dZ/dt = M*Z + L*Z_in.
+    L: the L matrix in the relation dZ/dt = M*Z + L*Z_in.
+'''
+```
+
+Refer to [Equation (1)](http://127.0.0.1:8000/theory/#input-output-formalism) on the Theory page for more information on $M$ and $L$ matrices.
+
+Methods:
+
+```python
+'''
+add_mode(self, mode):
+    Adding a mode to the system.
+
+    Args:
+        mode: the mode we want to add.
+'''
+```
+
+```python
+'''
+add_input(self, inp):
+    Adding an input to the system.
+
+    Args:
+        inp: the input we want to add.
+'''
+```
+
+```python
+'''
+add_coupling(self, coup):
+    Adding a coupling to the system.
+
+    Args:
+        coup: the coupling we want to add.
+'''
+```
+
+```python
+'''
+make_ML(self):
+    Constructing M and L matrices of the system.
+'''
+```
+```python
+'''
+SMatrix(self, omegas):
+    Constructs the scattering matrix of the system for a
+    frequency range.
+
+    Args:
+        omegas: frequencies vector in rad/sec.
+
+    Returns:
+        Ss: the scattering matrix.
+'''
+```
+Refer to [Equation (3)](http://127.0.0.1:8000/theory/#input-output-formalism) on Theory page for more information about scattering matrix.
+
+##### Class `Output`
+This class represents the output field of the system with respect to an input field (in terms of input-output formalism).
+
+```python
+'''
+Attributes:
+    system: the complex system of coupled modes and inputs.
+    input: the input field which we want to define its
+           output field (in terms of input-output formalism).
+    mode: the mode which these input and output fields are coupled.
+'''
+```
+
+## measurement
+Objects and functions in this script are used to perfom measurements on the output fields. The possible measurement schemes are linear response and spectrum. For more information on the definitions see Paragraph [measurements](http://127.0.0.1:8000/theory/#measurements) on the theory Page.
+
+##### Class `MeasurementOperator`
+This class represents a general measurement with a measurement matrix for defining a correlator
+
+$$Q(\tau) = \langle Q_{ij}Z_{\text{out},i}(0)Z_{\text{out},j}(\tau)\rangle,$$
+
+where $Q_{ij}$ is the $ij^{th}$ element of the measurement matrix.
+
+Refer to the Paragraph [spectra](http://127.0.0.1:8000/theory/#spectra) of the theory Page for more information on the measurement matrix.
+
+```python
+'''
+Attributes:
+    Q: the measurement matrix.
+    system: the system which the output field is coming from.
+    omega_d: the driving frequency of the mode which the
+             output field is coming from.
+'''
+```
+
+##### Class `PowerMeasurement`
+This class represents a power measurement scheme object. The correlator function and measurement matrix in this scheme are
+$$ Q(\tau) = \langle X(0)X(\tau) + iX(0)Y(\tau) - iY(0)X(\tau) + Y(0)Y(\tau) \rangle ,$$
+$$ [Q] = \begin{pmatrix} 1 &i \\ -i &1 \end{pmatrix}. $$
+
+```python
+'''
+Attributes:
+    system: the system which the output field is coming from.
+    omega_d: the driving frequency of the mode which the
+             output field is coming from.
+    Q: the measurement matrix.
+'''
+```
+
+##### Class `HomodynMeasurement`
+This class represents a Homodyn measurement scheme object with a homodyning angle.
+The correlator function and measurement matrix in this scheme are
+
+$$
+Q(\tau) = \langle \cos^2(\theta) X(0)X(\tau) + \sin(\theta)\cos(\theta) X(0)Y(\tau)
+$$$$\quad\quad\quad + \sin(\theta)\cos(\theta) Y(0)X(\tau) + \sin^2(\theta) Y(0)Y(\tau) \rangle,
+$$
+
+$$ [Q] = \begin{pmatrix} \cos^2(\theta) &\sin(\theta)\cos(\theta) \\ \sin(\theta)\cos(\theta) &\sin^2(\theta) \end{pmatrix}. $$
+
+```python
+'''
+Attributes:
+    system: the system which the output field is coming from.
+    omega_d: the driving frequency of the mode which the
+             output field is coming from.
+    Q: the measurement matrix.
+'''
+```
+
+##### Function `linear_response`
+
+This function calculates linear response (susceptibility) of the system from one specific input port to an output port in frequency domain
+$$    a_{\text{out}} = \chi  a_{\text{in}} .$$
+Refer to [Equation (4)](http://127.0.0.1:8000/theory/#measurements) of linear response Paragraph on the theory Page for more information on linear response.
+
+```python
+'''
+    Args:
+        Omegas: the frequencies vector we want to calculate
+                the linear response for them, in frame of the
+                input field (not a rotating frame)
+        system: the system which we want to measure its response.
+        output: the output port.
+        Input: the input port.
+        plot: flag, indicates to plot the susceptibilities or not.
+
+    Returns:
+        omegas_out: the frequencies vector we want to calculate
+                    the linear response for them, in frame of the
+                    output field (not a rotating frame)
+        chi: the susceptibility we want to measure.
+'''
+```
+
+##### Function `spectrum`
+The spectrum of an output field. Refer to [spectra](http://127.0.0.1:8000/theory/#spectra) Paragraph on the theory Page for more information on the spectra.
+
+```python
+'''
+    Args:
+        omegas: the frequencies vector we want to calculate the
+                spectrum for them, in frame of the output field
+                (not a rotating frame)
+        measurement: the measurement scheme, of kinds PowerMeasurement
+                     or HomodynMeasurement or another general measurement.
+        components: flag, indicates to calcuate different contributions
+                    of noise sources or just calculate the whole spectrum.
+        plot: flag, indicates to plot the spectra or not.
+
+    Returns:
+        spec: the spectrum of the output field in case of components = False.
+              A list of spectra from different contributions in case of
+              components = True. The nth element of the list contains the
+              comulative sum of first n contributions.
+'''
+```
+
+## DCnonlinearities
+Functions in this script are used to calculate the DC shifts resulting from nonlinear effects.
+
+##### Function `Kerr_effect_nbar`
+This function finds the steady state average photon number in an optical cavity with kerr type nonlinearity. It findes the smallest root of a third order polynomial equation:
+
+$$ [\frac{- \kappa_{\text{ex}}P_{\text{in}}}{\hbar\omega_{\text{drive}}}]\bar n^3 +
+   (\Delta^2 + (\frac{\kappa}{2})^2)\bar n^2 +
+   (2K\Delta) \bar n +
+   (K^2) = 0$$
+
+```python
+'''
+    Args:
+        P_in: input power in Watts.
+        kappa_0: cavity intrinsic dissipation rate in rad/sec.
+        kappa_ex: input coupling rate in rad/sec.
+        omega_c: cavity resonance frequency in rad/sec.
+        omega_drive: frequency of the input field in rad/sec.
+        K: nonlinearity coefficient in rad/sec.
+
+    returns:
+        smallest real root of the third order polynomial equation.
+'''
+```
+
+##### Function `optomechanics`
+This function finds the steady state average photon number in an optomechanical cavity and also finds the DC shift cavity
+resonance frequency. It uses the `Kerr_effect_nbar()` function to solve the third order equation
+
+$$\bar n [ \frac{\kappa^2}{4} + (\Delta - (\frac{2g_0^2}{\Omega_m})\bar n)^2 ] = \kappa_{\text{ext}} \frac{P_{\text{in}}}{\hbar\omega_{\text{drive}}}.$$
+
+```python
+'''
+    Args:
+        P_in: input power in Watts.
+        kappa_0: cavity intrinsic dissipation rate in rad/sec.
+        kappa_ex: input coupling rate in rad/sec.
+        omega_c: cavity resonance frequency in rad/sec.
+        omega_drive: frequency of the input field in rad/sec.
+        omega_m: resonance frequency of the mechanical oscillator in rad/sec.
+        g_0:  vacuum optomechanical coupling rate in rad/sec.
+
+    returns:
+        omega_c: modified cavity resonance frequency in rad/sec.
+        g: optomechanical coupling rate in rad/sec.
+'''
+```
+
+## plots
+Functions in this script can be used for plotting the linear responses and spectra.
+
+##### Function `plot_linear_response`
+This function is used for plotting the linear response functions. It plots the absolute value and phase of the linear response as well as the linear response as a trajectory in the complex plane.
+
+```python
+'''
+        Args:
+            omegas: the vector containing the frequencies
+                    in rad/sec (not in a rotating frame).
+            chi: the linear response function.
+            system: the system which the linear response is from.
+            output: the output field we that the linear response
+                    is calculated for.
+            input: the input field we that the linear response
+                   is calculated for.
+'''
+```
+
+##### Function `plot_spectrum`
+This function is used for plotting the spectra.
+
+```python
+'''
+        Args:
+            omegas: the vector containing the frequencies
+                    in rad/sec (not in a rotating frame).
+            spec: the spectrum.
+            componenets: flag, indicates to plot different contributions
+                         of noise sources in the spectrum or just
+                         plot the whole spectrum.
+            system: the system which the spectrum is from.
+'''
+```
+
+# Examples
+
+In this section a set of famous phenomena in optomechanics is presented. These calculations serve first as examples of using IOpy in simulating Langevin equations, and second are benchmarks of IOpy by comparing it to known theoretical models.
+
+## Simple Cavity
+
+
+![Inverted-colour optical micrograph of the circuit consisting of two coupled LC resonators, one having a mechanically com- pliant capacitor (Toth et. al. 2017).](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/ExamplesImg/LC.png){width=260 .center}
+
+
+<!--
+<p align="center">
+  <img width="260" src="\LC.png">
+    <p align = "center">
+        Inverted-colour optical micrograph of the circuit consisting of two coupled LC resonators, one having a mechanically com- pliant capacitor (Toth et. al. 2017).
+    </p>
+</p>
+-->
+
+in the first example we illustrate how to simulate a hot microwave resonator. Here the temperature of the bath is higher than the temperature of the drive and therefore we expect to see an emission shaped like a Lorentzian. <!--To see the fool written example, go to [Simple cavity example](http://localhost:8888/notebooks/IOpy/iopy/examples/Simple%20Cavity.ipynb).-->
+
+Let's start by defining the cavity mode
+
+```python
+omega_c = 5e9*np.pi*2
+a = Mode('a', omega_c)
+```
+
+Then we have to define input fields. In this example the cavity is driven by a coherent drive and it is coupled to a thermal bath.
+
+```python
+kappa_ex = 0.2e6*np.pi*2
+kappa_0 = 0.3e6*np.pi*2
+kappa = kappa_ex + kappa_0
+
+T_drive = 2e-5
+T_bath = 10e-3
+
+a_inex = Input('ex', a, kappa_ex, kind = 'drive',
+                omega_drive = omega_c, bath_temp=T_drive)
+a_in0 = Input('0', a, kappa_0, kind = 'bath', bath_temp=T_bath)
+```
+
+And finally we define the system object and the output field.
+
+```python
+sys_cav = System([a], [a_in0,  a_inex], [])
+```
+```python
+a_outex = Output(sys_cav, a_inex)
+```
+
+Now for measuring the spectrum of the output field, we have to use the `spectrum` function.
+
+```python
+omegas = np.linspace(omega_c - 15*kappa, omega_c + 15*kappa, 1001)
+spec = me.spectrum(omegas, me.PowerMeasurement(a_outex),
+                   components = False, plot = True)
+```
+
+
+![Simple Cavity Spectrum](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/Simple Cavity/simple_cavity_spectrum.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Simple cavity output spectrum}
+\end{figure}
+
+
+<!--
+<p align="center">
+  <img width="460" src="\Simple Cavity\simple_cavity_spectrum.png">
+    <p align = "center">
+        Simple cavity output spectrum
+    </p>
+</p>
+-->
+
+As we expect, we can see a Lorentzian in the spectrum. If the temperature of the driving field was higher than the thermal bath, we would see a deep instead of a peak.
+
+The linear response of the system to driving can also be measured with the `linear_response` function
+
+```python
+omegas_newex, S_ex = me.linear_response(omegas, sys_cav, a_outex,
+                                        a_inex, plot = 1)
+```
+
+
+![Cavity linear response in complex space](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/Simple Cavity/linear_response_comp.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Cavity linear response in complex space}
+\end{figure}
+
+![Cavity linear response amplitude](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/Simple Cavity/linear_response_amp.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Cavity linear response amplitude}
+\end{figure}
+
+![Cavity linear response phase](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/Simple Cavity/linear_response_phase.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Cavity linear response phase}
+\end{figure}
+
+<!--
+<p align="center">
+  <img width="460" src="\Simple Cavity\linear_response_comp.png">
+    <p align = "center">
+        Cavity linear response in complex space
+    </p>
+</p>
+
+<p align="center">
+  <img width="460" src="\Simple Cavity\linear_response_amp.png">
+  <p align = "center">
+        Cavity linear response amplitude
+  </p>
+</p>
+<p align="center">
+  <img width="460" src="\Simple Cavity\linear_response_phase.png">
+  <p align = "center">
+        Cavity linear response phase
+  </p>
+</p>
+-->
+
+The results can also be compared to the theory. For example in this case the linear response of the system to the drive field is
+
+$$ S_{aa} = 1 - \frac{\kappa_{ex}}{\frac{\kappa}{2} - i(\omega-\omega_c)}.$$
+
+The graphs below show the comparison between this equation and IOpy results.
+
+
+![Cvity linear response amplitude calculated by theory (dashed) and IOpy (blue).](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/Simple Cavity/comparison_amp.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Cvity linear response amplitude calculated by theory (dashed) and IOpy (blue)}
+\end{figure}
+
+![Cvity linear response phase calculated by theory (dashed) and IOpy (blue)](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/Simple Cavity/comparison_phase.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Cvity linear response phase calculated by theory (dashed) and IOpy (blue)}
+\end{figure}
+
+<!--
+<p align="center">
+  <img width="460" src="\Simple Cavity\comparison_amp.png">
+  <p align = "center">
+        Cavity linear response amplitude
+  </p>
+</p>
+<p align="center">
+  <img width="460" src="\Simple Cavity\comparison_phase.png">
+  <p align = "center">
+        Cavity linear response phase
+  </p>
+</p>
+-->
+
+
+## Basic Optomechanics and Cooling
+
+![False-colour scanning electron micrograph of the mechanically compliant drum capacitor (Toth et. al. 2017).](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/ExamplesImg/drum.png){width=260 .center}
+
+
+<!--
+<p align="center">
+  <img width="260" src="\ExamplesImg\drum.png">
+    <p align = "center">
+        False-colour scanning electron micrograph of the mechanically compliant drum capacitor (Toth et. al. 2017).
+    </p>
+</p>
+-->
+
+In this example we simulate an optomechanical system with a weak drive. Here we want to see the optomechanical cooling due to the increase in optomechanical damping rate. <!--To see the fool written example, go to [Basic optomechanics](http://localhost:8888/notebooks/IOpy/iopy/examples/Basic%20Optomechanics.ipynb).-->
+
+In the basic optomechanical interaction, the cavity resonance frequency shifts by a constant value due to the DC nonlinearity. Therefore, before defining the modes we have to calculate this DC shift.
+
+```python
+omega_c = 5e9*np.pi*2     # cavity resonance frequency
+
+kappa_0 = 0.3e6*np.pi*2
+kappa_ex = 0.4e6*np.pi*2
+
+kappa = kappa_0 + kappa_ex
+
+omega_m = 5e6*np.pi*2    # mechanical resonance frequency
+gamma_m = 100*np.pi*2
+
+P_in = 5e-12
+
+g_0 = 200*np.pi*2
+
+omega_drive = omega_c - 1* omega_m
+
+
+from DCnonlinearities import optomechanics
+
+omdir = optomechanics(P_in, kappa_0, kappa_ex, omega_c,
+                      omega_drive, omega_m, g_0)
+
+g= omdir['g']  # optomechanical coupling rate = sqrt(nbar)*g_0
+omega_c = omdir['omega_c']   # new cavity resonance frequency
+```
+Now we can define the modes, as well as input fields including thermal baths coupled to optics and mechanics and the optical driving field.
+
+```python
+a = Mode('a', omega_c)
+b = Mode('b', omega_m)
+
+a_inex = Input('ex', a, kappa_ex, kind = 'drive',
+                omega_drive = omega_drive, bath_temp=10e-3)
+a_in0 = Input('0', a, kappa_0, kind = 'bath', bath_temp=10e-3)
+
+b_in0 = Input('0', b, gamma_m, kind = 'bath', bath_temp=10e-3)
+```
+
+Then we should define the coupling between the optical and mechanical modes:
+
+```python
+g_ab = Coupling(a, b, g * np.array([1,0,0,0]))
+```
+And finally we define the whole optomechanical system:
+
+```python
+sys_om = System([a, b], [a_in0,b_in0 , a_inex], [g_ab])
+```
+
+Now just like the previous example we can measure the spectrum of the output field.
+
+![Optomechanical cavity output spectrum](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/Basic OM/spec.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Optomechanical cavity output spectrum}
+\end{figure}
+
+<!--
+<p align="center">
+  <img width="460" src="\Basic OM\spec.png">
+    <p align = "center">
+        Optomechanical cavity output spectrum
+    </p>
+</p>
+-->
+
+The peak that can be seen is because of low sampling rate of the calculations. To have a better precision we zoom on the neighborhood of the cavity resonance frequency.
+
+
+![Optomechanical cavity output spectrum](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/Basic OM/spec_zoom.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Optomechanical cavity output spectrum}
+\end{figure}
+
+<!--
+<p align="center">
+  <img width="460" src="\Basic OM\spec_zoom.png">
+    <p align = "center">
+        Optomechanical cavity output spectrum
+    </p>
+</p>
+-->
+
+Here we can clearly see different contributions to the spectrum. In addition the width of the spectrum is equal to the theory value $\Gamma_{\text{eff}} = \Gamma_m (1 + C)$ (with $C$ as the cooperativity equal to $\frac{4g^2}{\kappa\Gamma_m}$) which results in cooling.
+
+
+## Strong Coupling Regime
+
+![Mechanical frequency spectrum (frequency on vertical axis) as a function of laser detuning, for a strongly coupled optomechanical system (Aspelmeyer, Kippenberg, Marquardt 2014).](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/ExamplesImg/Strong.png){width=260 .center}
+
+
+<!--
+<p align="center">
+  <img width="260" src="\ExamplesImg\Strong.png">
+    <p align = "center">
+        Mechanical frequency spectrum (frequency on vertical axis) as a function of laser detuning, for a strongly coupled optomechanical system. (Aspelmeyer, Kippenberg, Marquardt 2014)
+    </p>
+</p>
+-->
+
+In this example we show the effect of increasing of the laser input power ($P_{\text{in}}$). For the details on the theory see [(Aspelmeyer, Kippenberg, Marquardt (2014))](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.86.1391), Section VII.C. By increasing the input power, at the beginning we can observe an improvement in the cooling, but as we continue increasing the power, the optical and mechanical modes hybridize to form two new modes with the eigenfrequencies
+
+$$ \omega_{\pm} = \frac{\Omega_m-\Delta}{2} \pm \sqrt{g^2 + (\frac{\Omega_m+\Delta}{2})^2}.$$
+
+When the driving laser is exactly detuned on the red sideband ($\Delta=-\Omega_m$) the splitting of these two modes is equal to $2g$. In this example we want to show this splitting on the spectrum.
+
+To simulate this phenomenon, the code is exactly the same as the previous example but with a different input power.<!-- To see the full code go to [Strong coupling regime](http://localhost:8888/notebooks/IOpy/iopy/examples/Strong%20Coupling%20Regime.ipynb). -->
+
+```python
+P_in = 5e-9
+```
+By measuring the output filed spectrum we can clearly see this mode splitting.
+
+
+![Optomechanical cavity output spectrum. One can see both red and blue sidebands of the pump.](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/Strong coupling/spec0.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Optomechanical cavity output spectrum. One can see both red and blue sidebands of the pump.}
+\end{figure}
+
+<!--
+<p align="center">
+  <img width="460" src="\Strong coupling\spec0.png">
+    <p align = "center">
+        Optomechanical cavity output spectrum. One can see both red and blue sidebands of the pump.
+    </p>
+</p>
+-->
+
+To see better the splitting we change the measurement frequencies.
+
+
+![Optomechanical cavity output spectrum](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/Strong coupling/spec.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Optomechanical cavity output spectrum}
+\end{figure}
+
+<!--
+<p align="center">
+  <img width="460" src="\Strong coupling\spec.png">
+    <p align = "center">
+        Optomechanical cavity output spectrum
+    </p>
+</p>
+-->
+
+## Optomechanically Induced Transparency
+
+![Transmission of the probe laser power through the optomechanical system in the case of a critically coupled cavity as a function of normalized probe laser frequency offset, when the control field is off (blue lines) and on (green lines) (Weis et al., 2010)](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/ExamplesImg/omit.png){width=260 .center}
+
+<!--
+<p align="center">
+  <img width="260" src="\ExamplesImg\omit.png">
+    <p align = "center">
+        Transmission of the probe laser power through the optomechanical system in the case of a critically coupled cavity k0 = kex as a function of normalized probe laser frequency offset, when the control field is off (blue lines) and on (green lines) (Weis et al., 2010).
+    </p>
+</p>
+-->
+
+This example is about the optomechanically induced transparency effect also known as OMIT. This effect was observed in atoms (electromagnetically induced transparency [Fleischhauer, Imamoglu, and Marangos, 2005](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.77.633)) as the cancellation of absorption in the presence of an auxiliary laser field. OMIT was predicted theoretically by Schliesser, 2009 and [Agarwal and Huang 2010](https://journals.aps.org/pra/abstract/10.1103/PhysRevA.81.041803). When the optical cavity is pumped on the red sideband and we inject a weak probe field into the cavity, the optomechanical interaction causes the cavity to be seen transparent by this weak field.
+
+To simulate this phenomenan in IOpy, the setup is again similar to the basic optomechanics example. The difference here is that we set the driving field (control field, in this context) to be a high temperature source. In this way, the noise around this control field play the role of the weak probe field for us, so we can see the OMIT effect in the spectrum, as well as the linear response. <!--To see the full code go to [OMIT](http://localhost:8888/notebooks/IOpy/iopy/examples/OMIT.ipynb) example.-->
+
+```python
+T_cont = 1
+T_bath = 10e-3
+
+a_cont = Input('ex', a, kappa_ex, kind = 'drive',
+               omega_drive = omega_cont, bath_temp = T_cont)
+a_in0 = Input('0', a, kappa_0, kind = 'bath', bath_temp = T_bath)
+
+b_in0 = Input('0', b, gamma_m, kind = 'bath', bath_temp = T_bath)
+```
+
+And now we measure the spectrum and the linear response.
+
+
+![Optomechanical cavity output spectrum](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/omit/spec.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Optomechanical cavity output spectrum}
+\end{figure}
+
+![Optomechanical cavity linear response amplitude](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/omit/LR_amp.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Optomechanical cavity linear response amplitude}
+\end{figure}
+
+![Optomechanical cavity linear response phase](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/omit/LR_phase.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Optomechanical cavity linear response phase}
+\end{figure}
+
+
+<!--
+<p align="center">
+  <img width="460" src="\omit\spec.png">
+    <p align = "center">
+        Optomechanical cavity output spectrum
+    </p>
+</p>
+
+<p align="center">
+  <img width="460" src="\omit\LR_amp.png">
+  <p align = "center">
+        Optomechanical cavity linear response amplitude
+  </p>
+</p>
+
+<p align="center">
+  <img width="460" src="\omit\LR_phase.png">
+  <p align = "center">
+        Optomechanical cavity linear response phase
+  </p>
+</p>
+-->
+
+These results can also be compared to theory. To see the details go to [OMIT Test](http://localhost:8888/notebooks/IOpy/iopy/Tests/OMIT%20Test.ipynb) notebook. We can show for the transmission window
+
+
+$$T = 1 - \kappa_{\text{ext}}\frac{\chi_{\text{opt}}(\Omega)}{1 + g^2\chi_{\text{mech}}(\Omega)\chi_{\text{opt}}(\Omega)},$$
+
+where
+
+$$
+    \chi_{\text{opt}}(\Omega) = [-i(\Omega+\Delta)+\kappa/2]^{-1},\\
+    \chi_{\text{mech}}(\Omega) = [-i(\Omega-\Omega_m)+\Gamma_m/2]^{-1},
+$$
+
+with
+
+$$\Delta = \omega_{\text{cont}} - \omega_{\text{cav}},\quad \Omega = \omega_p - \omega_{\text{cont}}.$$
+
+And the linear response from IOpy can be compared with this results as shown in figures bellow.
+
+
+![Optomechanical cavity linear response amplitude](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/omit/test_amp.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Optomechanical cavity linear response amplitude}
+\end{figure}
+
+![cavity linear response phase](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/omit/test_phase.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Optomechanical cavity linear response phase}
+\end{figure}
+
+
+<!--
+<p align="center">
+  <img width="460" src="\omit\test_amp.png">
+  <p align = "center">
+        Optomechanical cavity linear response amplitude
+  </p>
+</p>
+
+<p align="center">
+  <img width="460" src="\omit\test_phase.png">
+  <p align = "center">
+        Optomechanical cavity linear response phase
+  </p>
+</p>
+-->
+
+
+## Frequency Conversion Using OMIT
+
+![Reciprocal mechanically-mediated frequency conversion (adapted from Peterson et. al. 2018)](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/ExamplesImg/conv.png){width=260 .center}
+
+
+<!--
+<p align="center">
+  <img width="210" src="\ExamplesImg\conv.png">
+    <p align = "center">
+        Reciprocal mechanically-mediated frequency conversion (adapted from Peterson et. al. 2018).
+    </p>
+</p>
+-->
+
+The last example is about the frequency conversion using the OMIT effect which is a step towards multimode calculations. In this scenario, two optical modes with different resonance frequencies are coupled to the same mechanical mode and the optical modes are each pumped on their red sidebands. If we inject a weak probe to one of the cavities, there will be an emission from the other cavity. The qualitative explanation is that when probe field is on resonance with the first cavity, it will beat with the pump and excite the mechanics. the excitation of the mechanics then phase modulates the second pump which creates sidebands. To see this effect in IOpy first we have to define the whole system as two optical modes each with one drive, tuned on their red sidebands and coupled to a shared mechanical mode.<!-- To see the full code, go to [Frequency Conversion using OMIT](http://localhost:8888/notebooks/IOpy/iopy/examples/Frequency%20Conversion%20using%20OMIT.ipynb).-->
+
+```python
+omega_cav1 = 5e9*np.pi*2
+kappa_01 = 0.3e6*np.pi*2
+kappa_ex1 = 0.4e6*np.pi*2
+
+omega_cav2 = 6e9*np.pi*2
+kappa_02 = 0.3e6*np.pi*2
+kappa_ex2 = 0.4e6*np.pi*2
+
+
+omega_m = 5e6*np.pi*2
+gamma_m = 100*np.pi*2
+
+g_01 = 200*np.pi*2
+g_02= 200*np.pi*2
+
+
+P_in1 = 8e-10
+Delta1 = -omega_m
+omega_cont1 = omega_cav1 + Delta1
+T_cont1 = 2
+bath_temp1 = 10e-3
+
+P_in2 = 8e-10
+Delta2 = -omega_m
+omega_cont2 = omega_cav2 + Delta2
+T_cont2 = 2
+bath_temp2 = 10e-3
+
+from DCnonlinearities import optomechanics
+
+omdir1 = optomechanics(P_in1, kappa_01, kappa_ex1,
+                       omega_cav1, omega_cont1, omega_m, g_01)
+g1= omdir1['g']
+omega_cav1 = omdir1['omega_c']
+
+omdir2 = optomechanics(P_in2, kappa_02, kappa_ex2,
+                       omega_cav2, omega_cont2, omega_m, g_02)
+g2= omdir2['g']
+omega_cav2 = omdir2['omega_c']
+
+
+
+a1 = Mode('a1', omega_cav1)
+a2 = Mode('a2', omega_cav2)
+b = Mode('b', omega_m)
+
+a_cont1 = Input('ex', a1, kappa_ex1, kind = 'drive',
+                omega_drive = omega_cont1, bath_temp = T_cont1)
+a_in01 = Input('0', a1, kappa_01, kind = 'bath', bath_temp = bath_temp1)
+
+a_cont2 = Input('ex', a2, kappa_ex2, kind = 'drive',
+                omega_drive = omega_cont2, bath_temp = T_cont2)
+a_in02 = Input('0', a2, kappa_02, kind = 'bath', bath_temp = bath_temp2)
+
+b_in0 = Input('0', b, gamma_m, kind = 'bath', bath_temp=10e-3)
+
+g_a1b = Coupling(a1, b, g1 * np.array([1,0,1,0]))
+g_a2b = Coupling(a2, b, g2 * np.array([1,0,0,0]))
+
+sys_om = System([a1, a2, b], [a_in01, a_in02, b_in0, a_cont1, a_cont2],
+                [g_a1b, g_a2b])
+```
+
+Then we have to define the output ports and then measure the linear response from the input drives port of first cavity to the output port of the second cavity.
+
+```python
+a_outex1 = Output(sys_om, a_cont1)
+a_outex2 = Output(sys_om, a_cont2)
+
+omegas = np.linspace(omega_cav1 - 2.5* omega_m, omega_cav1 +  2.5 * omega_m, 10000)
+omegas_new, A = me.linear_response(omegas, sys_om, a_outex2, a_cont1, plot = True)
+```
+
+And the result, which is a measure of the frequency conversion efficiency, can be seen in the graph below.
+
+
+![Frequency conversion linear response amplitude](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/conv/LR_amp.png){width=460 .center}
+\begin{figure}[!h]
+\caption{Frequency conversion linear response amplitude}
+\end{figure}
+
+
+<!--
+<p align="center">
+  <img width="460" src="\conv\LR_amp.png">
+  <p align = "center">
+        Frequency conversion linear response amplitude
+  </p>
+</p>
+-->
+
+Both the input field and output field frequencies are shown on the graph. This means every point on this curve is the amplitude of the output field at the "output frequency", when the input probe is at the corresponding "input frequency".
+
+# Outlook
+
+## Multimode optomechanics
+One of the biggest motivations for starting the IOpy project was to develope a computational tool to help the experts in the field with the theoretical calculations. When the optomechanical systems become more complex the calculations also get more complicated and even impossible to do by hand without approximations. Especially, when the system invloves more oscillating modes like optical cavities, mechanical oscillators or driving fields. Multimode optomechanics, a growing field of interest, can be improved if such computational tools has the power to do the multimode calculations with an acceptable accuracy. But the barrier for the IOpy to do these calculations is arising from almost the same issue as when we want to drive an optical mode with more than one pump.
+
+### Multidrive Issue
+In many experiments in optomechanics we need to drive optical resonators with more than one pump field (for example see [Suh et. al. 2014](http://science.sciencemag.org/content/344/6189/1262)). In this case the theoretical calculations are not as clear as the simple case where each optical mode is driven by a single pump. The complexity is arising from the fact that due to the nonlinear nature of the optomechanical interaction, there would always be frequency mixing terms in the dynamics. In case of a single pump these mixings can be divided into fast and slowly varying terms and by going to the rotating frame of the drive, the equations of motions for the slowly varying terms become time independent and with linearizing the equations in principle they can be solved exactly in the frequency domain. But in case of multiple drives, because of the presence of multiple powerful tones, in general it is impossible to apply the same idea and equations of motion can not become time independent. In another language, there no longer exists a single rotating frame in which every other time variation can be considered slowly varying. The idea of having different rotating frames also fails because of the nonlinearities that prevents two rotating frames to be independent of each other.
+
+However, there are some approaches to resolve the problem still in frequency domain. For example, in the case of driving a mode with two pumps one solution is to use the Floquet ansatz to expand the variables by a Fourier series with principle frequency equal to difference frequency of the two drives (see [Malz and Nunnenkamp, 2016](https://journals.aps.org/pra/abstract/10.1103/PhysRevA.94.023803)). As another example, in the context of a four-mode isolator, where again each optical cavity is pumped with two drives to couple to two different mechanical modes simultaneously, the idea is to define the higher order mixing terms as "auxiliary modes" and expand the model to a model with higher number of modes as shown in the picture below from the work of [Peterson et. al., 2018](https://journals.aps.org/prx/abstract/10.1103/PhysRevX.7.031001).
+
+
+![The idea of the expanded mode basis for the four-mode isolator (Peterson et. al., 2018).](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/auxmodes.png){width=400 .center}
+
+
+
+<!--
+<p align="center">
+  <img width="460" src="\auxmodes.png">
+    <p align = "center">
+        The idea of the expanded mode basis for the four-mode isolator (Peterson et. al., 2018).
+    </p>
+</p>
+-->
+
+But in both cases, the calculations rely on truncating an infinite series and using the approximations like rotating wave approximation which we want to avoid in IOpy for keeping the calculations general. Moreover, these ideas will result into huge complexity in case of more than two drives.
+
+### Time Domain Simulations
+These issues lead us to think about a totally different approach for the calculations which is adopted from what is really happening in the experiments. In experiments, a VNA measures the scattering matrix of a network injecting a coherent signal (a sine wave) to the network and extracting the amplitude and phase from the output of the network. This, we can exactly done with time-domain simulations. In principle, we can write the most general Hamiltonian of the optomechanical network as the following
+
+$$H_{\text{sys}} = \sum_k \hbar\omega_{\text{cav},k}a^{\dagger}_ka_k + \sum_j \hbar\Omega_jb^{\dagger}_jb_j -\hbar\sum_{j,k,l}[g_0]_{kl}^ja^\dagger_ka_l(b^\dagger_j+b_j),$$
+
+and
+
+$$H_{\text{drive}} = \sum_{j,m}i\hbar\sqrt{\kappa_{jm}}(s_{\text{in},jm}(t)a^\dagger_je^{-i\omega_mt} + H.c.).$$
+
+With this, we can derive the equations of motion in the time domain and we can define the output ports with the input-output theory as $s_{\text{out},jm} = s_{\text{in},jm} - \sqrt{\kappa_{jm}}a_j$. Then for calculating the scattering matrix we can simulate the equations of motion in the time domain for inputs as sine waves, spanning a frequency band. Then look at the Fourier transform of the output wave at the frequencies we are interested to extract the amplitude and phase of the response. Please note this scattering matrix will not be a simple scattering matrix anymore. Because for example for a single weak sine wave there can be multiple sine waves at the output but we can still look for the frequencies of interest. Once the scattering matrix is calculated, every other parameter like the spectrum can be calculated.
+
+This simulation is done for a simple case of a single cavity. <!--To see the full code go to [TimeDomain - SimpleCavity](http://localhost:8888/notebooks/IOpy/iopy/Time%20Domain/TimeDomain%20-%20SimpleCavity.ipynb). -->The results for this simulation are shown in the figures below.
+
+
+![The amplitude of the linear response calculated with time domain simulation](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/time/amp.png){width=460 .center}
+\begin{figure}[!h]
+\caption{The amplitude of the linear response calculated with time domain simulation}
+\end{figure}
+
+![The phase of the linear response calculated with time domain simulation](/Users/amiraliarabmoheghi/IOpy/iopy/docs/site/time/phase.png){width=460 .center}
+\begin{figure}[!h]
+\caption{The amplitude of the linear response calculated with time domain simulation}
+\end{figure}
+
+
+<!--
+<p align="center">
+  <img width="460" src="\time\amp.png">
+    <p align = "center">
+        The amplitude of the linear response calculated with time domain simulation
+    </p>
+</p>
+
+<p align="center">
+  <img width="460" src="\time\phase.png">
+    <p align = "center">
+        The phase of the linear response calculated with time domain simulation
+    </p>
+</p>
+-->
+
+Although this idea works for the simple cavity, we have to further develop the code in order to cope with more complex systems like the basic optomechanics. Developing a time domian calculation library for the IOpy is one of the main goals of the future.
+
+## Beyond Optomechanics
+
+Another future goal for IOpy is to use it for physical systems other than optomechanics. In IOpy calculations, the physical nature of the problem is not really taken into account. For example all the examples given so far are in microwave domain (for superconducting circuit optomechanics) but all of them can also be implemented for the optical domain. In principle, we can go even further. As it can be inferred from the package name (IO in IOpy stands for Input-Output) our goal is to develope IOpy in a way that it is able to simulate most phenomenon which deal with coupled oscillators that can be formulated in input-output formalism.
+
+# References
+
+Agarwal, G.S., and S. Huang, 2010, [Phys. Rev. A 81, 041803(R)](https://journals.aps.org/pra/abstract/10.1103/PhysRevA.81.041803).
+
+Aspelmeyer, M., T.J. Kippenberg, and F. Marquardt, 2014, [Rev. Mod. Phys. 86, 1391](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.86.1391).
+
+Clerk, A. A., F. Marquardt, and J. G. E. Harris, 2010, [Phys. Rev. Lett. 104, 213603](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.104.213603).
+
+Fleischhauer, M., A. Imamoglu, and J.P. Marangos, 2005, [Rev. Mod. Phys. 77, 633](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.77.633)
+
+Gardiner, C. W., and P. Zoller, 2004, Quantum Noise, Springer Series in Synergetics (Springer, Berlin/Heidelberg).
+
+Malz, D., and A. Nunnenkamp, 2016, [Phys. Rev. A 94, 023803](https://journals.aps.org/pra/abstract/10.1103/PhysRevA.94.023803).
+
+Peterson, G.A., F. Lecocq, K. Cicak, R.W. Simmonds, J. Aumentado, and J.D. Teufel, 2018, [Phys. Rev. X 7, 031001](https://journals.aps.org/prx/abstract/10.1103/PhysRevX.7.031001).
+
+Schliesser, A., 2009, “Cavity optomechanics and optical frequency comb generation with silica whispering-gallery-mode resonators,”
+Ph.D.thesis(Ludwig-Maximilians-UniversitatMunchen).
+
+Suh, J., A. J. Weinstein, C. U. Lei, E. E. Wollman, S. K. Steinke, P. Meystre, A. A. Clerk, and K. C. Schwab, [Science 344, 1262 (2014)](http://science.sciencemag.org/content/344/6189/1262).
+
+Teufel, J. D., D. Li, M. S. Allman, K. Cicak, A. J. Sirois, J.D. Whittaker, and R.W. Simmonds, 2011, [Nature (London) 471, 204](https://www.nature.com/articles/nature09898).
+
+Weis, S., R. Riviere, S. Deleglise, E. Gavartin, O. Arcizet, A. Schliesser, and T. J. Kippenberg, 2010, [Science 330, 1520](http://science.sciencemag.org/content/330/6010/1520).
+
