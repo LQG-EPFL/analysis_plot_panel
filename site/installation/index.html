@@ -13,6 +13,7 @@
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet">
 
         <script src="../js/jquery-1.10.2.min.js" defer></script>
         <script src="../js/bootstrap.min.js" defer></script>
@@ -34,13 +35,10 @@
                         <!-- Main navigation -->
                         <ul class="nav navbar-nav">
                             <li class="navitem">
-                                <a href=".." class="nav-link">About</a>
+                                <a href="../home/" class="nav-link">Home</a>
                             </li>
                             <li class="navitem active">
                                 <a href="./" class="nav-link">Installation</a>
-                            </li>
-                            <li class="navitem">
-                                <a href="../references/" class="nav-link">References</a>
                             </li>
                         </ul>
 
@@ -51,12 +49,12 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href=".." class="nav-link">
+                                <a rel="prev" href="../home/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../references/" class="nav-link">
+                                <a rel="next" class="nav-link disabled">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -78,23 +76,20 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="1"><a href="#elements" class="nav-link">elements</a>
+            <li class="nav-item" data-level="1"><a href="#installation" class="nav-link">Installation</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#download" class="nav-link">Download</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            
-            <li class="nav-item" data-level="1"><a href="#measurement" class="nav-link">measurement</a>
+            <li class="nav-item" data-level="2"><a href="#additional-packages-required" class="nav-link">Additional packages required</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            
-            <li class="nav-item" data-level="1"><a href="#dcnonlinearities" class="nav-link">DCnonlinearities</a>
+            <li class="nav-item" data-level="2"><a href="#setup-of-lyse" class="nav-link">Setup of lyse</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            
-            <li class="nav-item" data-level="1"><a href="#plots" class="nav-link">plots</a>
-              <ul class="nav flex-column">
               </ul>
             </li>
         </ul>
@@ -102,316 +97,35 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<p>In this section the different classes and functions of IOpy are introduced. IOpy consists of 4 main scripts <code>elements</code>, <code>measurement</code>, <code>DCnonlinearaity</code> and <code>plots</code>.</p>
-<h1 id="elements">elements</h1>
-<p>Objects and functions in this script are used to define the oscillating modes, input-output ports, couplings between different modes and finally the whole system of coupled oscillators.</p>
-<h4 id="class-mode">Class <code>Mode</code></h4>
-<p>This class represents the harmonic oscillators modes.</p>
-<pre><code class="language-python">'''
-Attributes:
-    name: name of the mode.
-    omega: resonance frequency of the mode in rad/sec.
-    kappa: mode total dissipation rate in rad/sec.
-    omega_rot: frequency at which the mode frame is
-               rotating in rad/sec.
-    driven: flag indicates whether the mode is driven or not.   
-
-Properties:
-    omega_d():
-       returns the frequency of the field which is driving
-       the mode in rad/sec.
-'''
-</code></pre>
-<h4 id="class-input">Class <code>Input</code></h4>
-<p>This class represents the input field coupled to a <code>Mode</code>. Inputs can be coherent drives (pumps) or thermal baths where the only difference between them is the rotating frame.</p>
-<pre><code class="language-python">'''
-Attributes:
-    name: name of the input field.
-    mode: the mode which the input is coupled to.
-    kind: flag which indicates the input is a pump or a thermal
-          bath. 'drive' for a pump and 'bath' for a thermal bath.
-    kappa: coupling rate to the mode in rad/sec.
-    omega_drive: frequency of the pump fields in rad/sec.
-    bath_temp: temperature of the bath or the pump in Kelvins.
-    nbar: average number of thermal photons in the input field.
-'''
-</code></pre>
-<p><code>nbar</code> is calculated using the formula
-<script type="math/tex; mode=display">\bar n =\frac{1}{e^{\frac{\hbar\omega}{kT}}-1}.</script>
-</p>
-<p>Methods:</p>
-<pre><code class="language-python">'''
-spectrum(self, omegas):
-    spectrum of the input field. Here we approximately take
-    the thermal spectrum to be constant near the mode frequency.
-    Args:
-        omegas: the frequencies vector at which we want to
-                calculate the spectrum.
-
-    Returns:
-            spectrum of the input field in units of number
-            of photons.
-'''
-</code></pre>
-<p>Currently for the input noise spectrum we consider the simplest case that it is a thermal spectrum. In future a feature will be added that allows for user defined spectra. This would make it possible to account for the classical noises of the lasers (phase noise and amplitude noise).</p>
-<h4 id="class-coupling">Class <code>Coupling</code></h4>
-<p>This class represents the couplings between two <code>Mode</code>s using the coupling vector. The coupling vector <script type="math/tex">V_g</script> is a 4-dimensional vector which is defined in a way that the interaction Hamiltonian for two coupled modes would be</p>
-<p>
-<script type="math/tex; mode=display">H_{\text{int}} = 2\hbar(V_{g,1}X_1X_2 + V_{g,1}X_1Y_2 + V_{g,1}Y_1X_2 + V_{g,1}Y_1Y_2).</script>
-</p>
-<p>For optomechanics the couling vector is</p>
-<p>
-<script type="math/tex; mode=display">V_g = (g, 0, 0, 0).</script>
-</p>
-<pre><code class="language-python">'''
-Attributes:
-    mode1: first mode.
-    mode2: second mode.
-    vg: coupling vector. a 4-d real vector.
-'''
-</code></pre>
-<p>Methods:</p>
-<pre><code class="language-python">'''
-contains_mode(self, mode):
-    indicates if the mode is involved in this coupling or not.
-
-    Args:
-        mode: the mode we want to look for.
-
-    Returns:
-       'True' if the mode is involved and 'False' for otherwise.
-'''
-</code></pre>
-<h4 id="class-system">Class <code>System</code></h4>
-<p>Defines the complex system made of coupled <code>Mode</code>s and <code>Input</code>s. Its most important purpose is to calculate the scattering matrix.</p>
-<pre><code class="language-python">'''
-Attributes:
-    modes: an array of modes in the system.
-    inputs: an array of inputs of the system.
-    couplings: couplings between the modes of the system.
-    M: the M matrix in the relation dZ/dt = M*Z + L*Z_in.
-    L: the L matrix in the relation dZ/dt = M*Z + L*Z_in.
-'''
-</code></pre>
-<p>Refer to <a href="https://nicksauerwein.github.io/IOpy/theory/#input-output-formalism">Equation (1)</a> on the Theory page for more information on <script type="math/tex">M</script> and <script type="math/tex">L</script> matrices.</p>
-<p>Methods:</p>
-<pre><code class="language-python">'''
-add_mode(self, mode):
-    Adding a mode to the system.
-
-    Args:
-        mode: the mode we want to add.
-'''
-</code></pre>
-<pre><code class="language-python">'''
-add_input(self, inp):
-    Adding an input to the system.
-
-    Args:
-        inp: the input we want to add.
-'''
-</code></pre>
-<pre><code class="language-python">'''
-add_coupling(self, coup):
-    Adding a coupling to the system.
-
-    Args:
-        coup: the coupling we want to add.
-'''
-</code></pre>
-<pre><code class="language-python">'''
-make_ML(self):
-    Constructing M and L matrices of the system.
-'''
-</code></pre>
-<pre><code class="language-python">'''
-SMatrix(self, omegas):
-    Constructs the scattering matrix of the system for a
-    frequency range.
-
-    Args:
-        omegas: frequencies vector in rad/sec.
-
-    Returns:
-        Ss: the scattering matrix.
-'''
-</code></pre>
-<p>Refer to <a href="https://nicksauerwein.github.io/IOpy/theory/#input-output-formalism">Equation (3)</a> on Theory page for more information about scattering matrix.</p>
-<h4 id="class-output">Class <code>Output</code></h4>
-<p>This class represents the output field of the system with respect to an input field (in terms of input-output formalism).</p>
-<pre><code class="language-python">'''
-Attributes:
-    system: the complex system of coupled modes and inputs.
-    input: the input field which we want to define its
-           output field (in terms of input-output formalism).
-    mode: the mode which these input and output fields are coupled.
-'''
-</code></pre>
-<h1 id="measurement">measurement</h1>
-<p>Objects and functions in this script are used to perfom measurements on the output fields. The possible measurement schemes are linear response and spectrum. For more information on the definitions see Paragraph <a href="https://nicksauerwein.github.io/IOpy/theory/#measurements">measurements</a> on the theory Page.</p>
-<h4 id="class-measurementoperator">Class <code>MeasurementOperator</code></h4>
-<p>This class represents a general measurement with a measurement matrix for defining a correlator</p>
-<p>
-<script type="math/tex; mode=display">Q(\tau) = \langle Q_{ij}Z_{\text{out},i}(0)Z_{\text{out},j}(\tau)\rangle,</script>
-</p>
-<p>where <script type="math/tex">Q_{ij}</script> is the <script type="math/tex">ij^{th}</script> element of the measurement matrix.</p>
-<p>Refer to the Paragraph <a href="https://nicksauerwein.github.io/IOpy/theory/#spectra">spectra</a> of the theory Page for more information on the measurement matrix.</p>
-<pre><code class="language-python">'''
-Attributes:
-    Q: the measurement matrix.
-    system: the system which the output field is coming from.
-    omega_d: the driving frequency of the mode which the
-             output field is coming from.
-'''
-</code></pre>
-<h4 id="class-powermeasurement">Class <code>PowerMeasurement</code></h4>
-<p>This class represents a power measurement scheme object. The correlator function and measurement matrix in this scheme are
-<script type="math/tex; mode=display"> Q(\tau) = \langle X(0)X(\tau) + iX(0)Y(\tau) - iY(0)X(\tau) + Y(0)Y(\tau) \rangle ,</script>
-<script type="math/tex; mode=display"> [Q] = \begin{pmatrix} 1 &i \\ -i &1 \end{pmatrix}. </script>
-</p>
-<pre><code class="language-python">'''
-Attributes:
-    system: the system which the output field is coming from.
-    omega_d: the driving frequency of the mode which the
-             output field is coming from.
-    Q: the measurement matrix.
-'''
-</code></pre>
-<h4 id="class-homodynmeasurement">Class <code>HomodynMeasurement</code></h4>
-<p>This class represents a Homodyn measurement scheme object with a homodyning angle.
-The correlator function and measurement matrix in this scheme are</p>
-<p>
-<script type="math/tex; mode=display">
-Q(\tau) = \langle \cos^2(\theta) X(0)X(\tau) + \sin(\theta)\cos(\theta) X(0)Y(\tau)
-</script>
-<script type="math/tex; mode=display">\quad\quad\quad + \sin(\theta)\cos(\theta) Y(0)X(\tau) + \sin^2(\theta) Y(0)Y(\tau) \rangle,
-</script>
-</p>
-<p>
-<script type="math/tex; mode=display"> [Q] = \begin{pmatrix} \cos^2(\theta) &\sin(\theta)\cos(\theta) \\ \sin(\theta)\cos(\theta) &\sin^2(\theta) \end{pmatrix}. </script>
-</p>
-<pre><code class="language-python">'''
-Attributes:
-    system: the system which the output field is coming from.
-    omega_d: the driving frequency of the mode which the
-             output field is coming from.
-    Q: the measurement matrix.
-'''
-</code></pre>
-<h4 id="function-linear_response">Function <code>linear_response</code></h4>
-<p>This function calculates linear response (susceptibility) of the system from one specific input port to an output port in frequency domain
-<script type="math/tex; mode=display">    a_{\text{out}} = \chi  a_{\text{in}} .</script>
-Refer to <a href="https://nicksauerwein.github.io/IOpy/theory/#measurements">Equation (4)</a> of linear response Paragraph on the theory Page for more information on linear response.</p>
-<pre><code class="language-python">'''    
-    Args:
-        Omegas: the frequencies vector we want to calculate
-                the linear response for them, in frame of the
-                input field (not a rotating frame)
-        system: the system which we want to measure its response.
-        output: the output port.
-        Input: the input port.
-        plot: flag, indicates to plot the susceptibilities or not.
-
-    Returns:
-        omegas_out: the frequencies vector we want to calculate
-                    the linear response for them, in frame of the
-                    output field (not a rotating frame)
-        chi: the susceptibility we want to measure.
-'''
-</code></pre>
-<h4 id="function-spectrum">Function <code>spectrum</code></h4>
-<p>The spectrum of an output field. Refer to <a href="https://nicksauerwein.github.io/IOpy/theory/#spectra">spectra</a> Paragraph on the theory Page for more information on the spectra.</p>
-<pre><code class="language-python">'''
-    Args:
-        omegas: the frequencies vector we want to calculate the
-                spectrum for them, in frame of the output field
-                (not a rotating frame)
-        measurement: the measurement scheme, of kinds PowerMeasurement
-                     or HomodynMeasurement or another general measurement.
-        components: flag, indicates to calcuate different contributions
-                    of noise sources or just calculate the whole spectrum.
-        plot: flag, indicates to plot the spectra or not.
-
-    Returns:
-        spec: the spectrum of the output field in case of components = False.
-              A list of spectra from different contributions in case of
-              components = True. The nth element of the list contains the
-              comulative sum of first n contributions.
-'''
-</code></pre>
-<h1 id="dcnonlinearities">DCnonlinearities</h1>
-<p>Functions in this script are used to calculate the DC shifts resulting from nonlinear effects.</p>
-<h4 id="function-kerr_effect_nbar">Function <code>Kerr_effect_nbar</code></h4>
-<p>This function finds the steady state average photon number in an optical cavity with kerr type nonlinearity. It findes the smallest root of a third order polynomial equation:</p>
-<p>
-<script type="math/tex; mode=display"> [\frac{- \kappa_{\text{ex}}P_{\text{in}}}{\hbar\omega_{\text{drive}}}]\bar n^3 +
-   (\Delta^2 + (\frac{\kappa}{2})^2)\bar n^2 +
-   (2K\Delta) \bar n +
-   (K^2) = 0</script>
-</p>
-<pre><code class="language-python">'''
-    Args:
-        P_in: input power in Watts.
-        kappa_0: cavity intrinsic dissipation rate in rad/sec.
-        kappa_ex: input coupling rate in rad/sec.
-        omega_c: cavity resonance frequency in rad/sec.
-        omega_drive: frequency of the input field in rad/sec.
-        K: nonlinearity coefficient in rad/sec.
-
-    returns:
-        smallest real root of the third order polynomial equation.
-'''
-</code></pre>
-<h4 id="function-optomechanics">Function <code>optomechanics</code></h4>
-<p>This function finds the steady state average photon number in an optomechanical cavity and also finds the DC shift cavity
-resonance frequency. It uses the <code>Kerr_effect_nbar()</code> function to solve the third order equation</p>
-<p>
-<script type="math/tex; mode=display">\bar n [ \frac{\kappa^2}{4} + (\Delta - (\frac{2g_0^2}{\Omega_m})\bar n)^2 ] = \kappa_{\text{ext}} \frac{P_{\text{in}}}{\hbar\omega_{\text{drive}}}.</script>
-</p>
-<pre><code class="language-python">'''    
-    Args:
-        P_in: input power in Watts.
-        kappa_0: cavity intrinsic dissipation rate in rad/sec.
-        kappa_ex: input coupling rate in rad/sec.
-        omega_c: cavity resonance frequency in rad/sec.
-        omega_drive: frequency of the input field in rad/sec.
-        omega_m: resonance frequency of the mechanical oscillator in rad/sec.
-        g_0:  vacuum optomechanical coupling rate in rad/sec.
-
-    returns:
-        omega_c: modified cavity resonance frequency in rad/sec.
-        g: optomechanical coupling rate in rad/sec.
-'''
-</code></pre>
-<h1 id="plots">plots</h1>
-<p>Functions in this script can be used for plotting the linear responses and spectra.</p>
-<h4 id="function-plot_linear_response">Function <code>plot_linear_response</code></h4>
-<p>This function is used for plotting the linear response functions. It plots the absolute value and phase of the linear response as well as the linear response as a trajectory in the complex plane.</p>
-<pre><code class="language-python">'''
-        Args:
-            omegas: the vector containing the frequencies
-                    in rad/sec (not in a rotating frame).
-            chi: the linear response function.
-            system: the system which the linear response is from.
-            output: the output field we that the linear response
-                    is calculated for.
-            input: the input field we that the linear response
-                   is calculated for.
-'''
-</code></pre>
-<h4 id="function-plot_spectrum">Function <code>plot_spectrum</code></h4>
-<p>This function is used for plotting the spectra.</p>
-<pre><code class="language-python">'''        
-        Args:
-            omegas: the vector containing the frequencies
-                    in rad/sec (not in a rotating frame).
-            spec: the spectrum.
-            componenets: flag, indicates to plot different contributions
-                         of noise sources in the spectrum or just
-                         plot the whole spectrum.
-            system: the system which the spectrum is from.
-'''
-</code></pre></div>
+<h1 id="installation">Installation</h1>
+<h2 id="download">Download</h2>
+<p>The Analysis Plot Panel is though to be used as a single shot routine in lyse. In order to set this up, one first has to clone the git into the folder where all the analysis scripts are stored (usually: <code>C:\Users\user_name\labscript-suite\userlib\analysislib\experiment_name</code>), where <code>user_name</code> and <code>experiment_name</code> have to be changed individually.</p>
+<h2 id="additional-packages-required">Additional packages required</h2>
+<p>The analysis plot panel requires the following packages:</p>
+<ul>
+<li>
+<p><code>lyse</code>: Installed with the labscript suite </p>
+</li>
+<li>
+<p><code>pyqt5</code>: Installed with the labscript suite </p>
+</li>
+<li>
+<p><code>pyqtgraph</code>: Installed with the labscript suite </p>
+</li>
+<li>
+<p><code>h5py</code>: Installed with the labscript suite</p>
+</li>
+<li>
+<p><code>sortedcontainers</code>: pip install sortedcontainers</p>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>All these packages should be installed in the correct python environment. Check the <a href="https://docs.labscriptsuite.org/en/stable/installation/setting-up-an-environment/#choosing-an-installation-method">installation guide of labscript</a> for more details.</p>
+</div>
+<h2 id="setup-of-lyse">Setup of lyse</h2>
+<p>As a last step, the <code>analysis_plot_panel_lyse_routine.py</code> file should be loaded as a single shot routine in lyse:</p>
+<p><img alt="" src="../lyse_config.PNG" /></p></div>
             </div>
         </div>
 
