@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Home - Anaysis Plot Panel documentation</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">Anaysis Plot Panel documentation</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">Home</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../installation/" class="nav-link">Installation</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" class="nav-link disabled">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../installation/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#what-is-the-analysis-plot-panel" class="nav-link">What is the Analysis Plot Panel?</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#shot-selector" class="nav-link">Shot Selector</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#quick-plot-generator" class="nav-link">Quick Plot Generator</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#quick1dplot" class="nav-link">Quick1DPlot</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#quick-waterfall-plot" class="nav-link">Quick Waterfall Plot</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#quick-2d-plot" class="nav-link">Quick 2D Plot</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#how-to-make-a-custom-plot" class="nav-link">How to make a custom plot?</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#add-plot-to-plot-panel" class="nav-link">Add plot to plot panel</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="what-is-the-analysis-plot-panel">What is the Analysis Plot Panel?</h1>
+<p>The analysis plot panel is a tool to plot data produced from <a href="https://labscriptsuite.org/">labscript suite</a> based experiments in an fast end efficient way. It is directly linked to the lyse package using single-shot routines. </p>
+<p>The code has been developed by the <a href="https://www.epfl.ch/labs/lqg/">laboratory of quantum gases</a>. Check our <a href="https://github.com/LQG-EPFL">github page</a> for other useful tools.</p>
+<p>The module is based on three packages:</p>
+<ol>
+<li><code>pyqtgraph</code>: An ultra-fast plotting library</li>
+<li><code>h5py</code>: A python package to read data from h5 files</li>
+<li><code>pyqt5</code>: The python wrapper of the qt5 GUI library</li>
+</ol>
+<p>The panel is made up of individual plots, the shot selector and the quick plot generator. The individual plots can either be <a href="./#How to make a custom plot?">customized plots</a> (implemented in the <code>user_plot.py</code> file) or it can be one of the tree different types of so-called quick plots (<code>Quick1DPlot</code>, <code>QuickWaterfallPlot</code> and <code>Quick2DPlot</code>). These allow the user to plot trends of the acquired data without having to write a special plotting function. For more information on the installation check our <a href="../installation/">installation page</a>.</p>
+<h1 id="shot-selector">Shot Selector</h1>
+<p><img alt="" src="../ShotSelector.PNG" /></p>
+<p>In the shot selector one can specify for which shot/shots the data should be plotted. For plots that show data from a single shot, the slider or the text field on the left of it can be used to choose the shot. The index selector text field is used to specify the subset of shots to be show in the analysis plot panel. </p>
+<p>Examples:</p>
+<ul>
+<li><code>:</code> The selection of indices (shots) for the slider and the quick plots are the complete list in lyse</li>
+<li><code>2:5, -1</code> The selected indices are 2,3,4 and -1</li>
+<li><code>1:10:2</code> The selected indices are every odd number up to 10</li>
+</ul>
+<h1 id="quick-plot-generator">Quick Plot Generator</h1>
+<p>As the name suggest, the quick plot generator can be used to make quick plot. These can be used to show data of multiple shots in lyse in a fast way.</p>
+<p><img alt="" src="../QuickPlotGenerator.PNG" /></p>
+<p>In order to generate a plot, one has to specify the title of the plot (here: 2D Example) and then press the right button to either generate a <code>Quick1DPlot</code>, <code>QuickWaterfallPlot</code> or <code>Quick2DPlot</code>.</p>
+<h2 id="quick1dplot">Quick1DPlot</h2>
+<p><img alt="" src="../Quick1DPlot.PNG" /></p>
+<p>A quick 1D plot can show multiple plots of single valued results (a single number per shot). An example would be plotting atom number as a function of shot number. In the plot parameters section one can set the title, xlabel, ylabel and activate the grid. The units field should be filled with the units of the data (ex: s for second). The plot will then change the units that the ticks are as readable as possible (0.001s -&gt; 1 ms).</p>
+<h2 id="quick-waterfall-plot">Quick Waterfall Plot</h2>
+<p><img alt="" src="../QuickWaterfallPlot.PNG" /></p>
+<p>Quick waterfall plots allow the user to plot array-valued results as a function of single-valued results. The example above shows cavity spectra as a function of the shot number. The plot parameters are the same as for the <code>Quick1DPlot</code>. </p>
+<h2 id="quick-2d-plot">Quick 2D Plot</h2>
+<p><img alt="" src="../Quick2DPlot.PNG" /><code>Quick2DPlot</code>s are the similar to <code>Quick1DPlot</code>s. The difference is that they plot a single-valued result as a function of two other single-valued results.</p>
+<h1 id="how-to-make-a-custom-plot">How to make a custom plot?</h1>
+<p>Each plot is made up of two parts, the Plot Widget and the Data Extractor. The Plot Widget specifies how the results are shown and the Data Extractors specify how the results are extracted from the h5 files. The usual template class <code>AnalysisPlot</code> (found in <code>__init__.py</code> file) consists of tree parts, the actual plot, a table to show single valued data (like atom numbers) and a title/warning field. For the plots the pyqtgraph library is used. In the following, I will go through the steps to make a new plot. I will explain this on the example of the <code>SpectrumPlot</code>that can be found in the <code>user_plots.py</code> file.</p>
+<h3 id="plotwidget">PlotWidget</h3>
+<ol>
+<li>
+<p>Write a new class in the <code>user_plots.py</code> that inherits from the <code>AnalysisPlot</code> class. With the following things in the <code>__init__</code>:</p>
+</li>
+<li>
+<p>Add plots to the <code>pyqtgraph.GraphicsLayoutWidget</code>named <code>self.plots</code> using  <code>self.plot = self.plots.addPlot()</code>. This will generate a <code>PlotWidget</code> named <code>self.plot</code>. </p>
+</li>
+<li>Add a curve to the <code>PlotWidget</code> with </li>
+</ol>
+<pre><code class="language-python">self.curve_hist = self.plot.plot(args)
+</code></pre>
+<p>The style of the plot can be adapted with the args. Check the documentation of pyqtgraph for the syntax. One can also add x- and y-labels to the <code>PlotWidget</code>with <code>self.plot.setLabel(...)</code></p>
+<ol>
+<li>The next important step is to write an update function. This function takes the results of the shot in terms of <code>numpy.array</code>s and updates the curves with functions like </li>
+</ol>
+<pre><code class="language-python">def update(self, freqs, counts):
+    self.curve_hist.setData(freqs, counts)
+</code></pre>
+<p>Here one can also add data to the table with:</p>
+<pre><code class="language-python">self.table.setData(tabledata)
+</code></pre>
+<p>For the generation of tabledata check the syntax of the <code>TableWidget</code> in pyqtgraph.</p>
+<h3 id="dataextractor">DataExtractor</h3>
+<ol>
+<li>
+<p>Write a new class that inherits from <code>DataExtractor</code> in <code>user_data_extractors.py</code>. Specify in the <code>__init__</code> some identifying keyworks. (here: name and frametype of the spectrum). Like this the class 'knows' from which spectrum it should extract the data.</p>
+</li>
+<li>
+<p>Write the function <code>extract_data</code> in the following structure:</p>
+</li>
+</ol>
+<pre><code class="language-python">def extract_data(self, h5_path, h5_file = None):
+    #make run instance
+    run = lyse.Run(h5_path)
+
+    imaging = 'cavity_spectrum'
+    #make identifying keyword here: spectrum_name
+    name = self.name
+    frametype = self.frametype
+
+    spectrum_name = name+' '+frametype
+
+    try:
+        #write functions here to extract the data:
+        #make sure that you hand over the h5_file. This can lead to a speedup
+        #since then the files doen't get opened for every variable
+        n_photons = run.get_result_array(imaging, spectrum_name+' n_photons', h5_file = h5_file)
+        freqs = run.get_result_array(imaging, spectrum_name+' freqs', h5_file = h5_file)
+
+        except:
+            #write here what should happen if the data could not be found
+            import traceback
+            traceback.print_exc()
+            freqs, n_photons = np.array([0.,1.]), np.array([0.,1.])
+
+            return freqs, n_photons #These are the arguments that are given to 
+        # the update function of the PlotWidget.
+</code></pre>
+<h2 id="add-plot-to-plot-panel">Add plot to plot panel</h2>
+<p>The last step is to make sure  that the PlotWidget and DataExtractor are added to the analysis plot panel. For this one should call <code>fm.ap.add_plot_dock(plot_name, AnalyisPlot, DataExtractor).</code></p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
