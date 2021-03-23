@@ -10,7 +10,8 @@ The module is based on three packages:
 2. `h5py`: A python package to read data from h5 files
 3. `pyqt5`: The python wrapper of the qt5 GUI library
 
-The panel is made up of individual plots, the shot selector and the quick plot generator. The individual plots can either be [customized plots](home.md#How to make a custom plot?) (implemented in the `user_plot.py` file) or it can be one of the tree different types of so-called quick plots (`Quick1DPlot`, `QuickWaterfallPlot` and `Quick2DPlot`). These allow the user to plot trends of the acquired data without having to write a special plotting function. For more information on the installation check our [installation page](installation.md).
+The panel is made up of individual plots, the shot selector and the quick plot generator. The individual plots can either be [customized plots](index.md#make-a-custom-plot) (implemented in the `user_plot.py` file) or it can be one of the tree different types of so-called [quick plots](index.md#quick-plot-generator
+) (`Quick1DPlot`, `QuickWaterfallPlot` and `Quick2DPlot`). These allow the user to plot trends of the acquired data without having to write a special plotting function. For more information on the installation check our [installation page](installation.md).
 
 # Shot Selector
 
@@ -48,7 +49,7 @@ Quick waterfall plots allow the user to plot array-valued results as a function 
 
 ![](Quick2DPlot.PNG)`Quick2DPlot`s are the similar to `Quick1DPlot`s. The difference is that they plot a single-valued result as a function of two other single-valued results.
 
-# How to make a custom plot?
+# Make a Custom Plot
 
 Each plot is made up of two parts, the Plot Widget and the Data Extractor. The Plot Widget specifies how the results are shown and the Data Extractors specify how the results are extracted from the h5 files. The usual template class `AnalysisPlot` (found in `__init__.py` file) consists of tree parts, the actual plot, a table to show single valued data (like atom numbers) and a title/warning field. For the plots the pyqtgraph library is used. In the following, I will go through the steps to make a new plot. I will explain this on the example of the `SpectrumPlot`that can be found in the `user_plots.py` file.
 

@@ -4,27 +4,27 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="None">
         
         
-        
-        <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Home - Anaysis Plot Panel documentation</title>
-        <link href="../css/bootstrap.min.css" rel="stylesheet">
-        <link href="../css/font-awesome.min.css" rel="stylesheet">
-        <link href="../css/base.css" rel="stylesheet">
+        <link rel="shortcut icon" href="img/favicon.ico">
+        <title>Anaysis Plot Panel documentation</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+        <link href="css/base.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
-        <link href="../assets/_mkdocstrings.css" rel="stylesheet">
+        <link href="assets/_mkdocstrings.css" rel="stylesheet">
 
-        <script src="../js/jquery-1.10.2.min.js" defer></script>
-        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="js/jquery-1.10.2.min.js" defer></script>
+        <script src="js/bootstrap.min.js" defer></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
         <script>hljs.initHighlightingOnLoad();</script> 
     </head>
 
-    <body>
+    <body class="homepage">
         <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
             <div class="container">
-                <a class="navbar-brand" href="..">Anaysis Plot Panel documentation</a>
+                <a class="navbar-brand" href=".">Anaysis Plot Panel documentation</a>
                 <!-- Expander button -->
                 <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
@@ -35,10 +35,10 @@
                         <!-- Main navigation -->
                         <ul class="nav navbar-nav">
                             <li class="navitem active">
-                                <a href="./" class="nav-link">Home</a>
+                                <a href="." class="nav-link">Home</a>
                             </li>
                             <li class="navitem">
-                                <a href="../installation/" class="nav-link">Installation</a>
+                                <a href="installation/" class="nav-link">Installation</a>
                             </li>
                         </ul>
 
@@ -54,9 +54,12 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../installation/" class="nav-link">
+                                <a rel="next" href="installation/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/LQG-EPFL/analysis_plot_panel/edit/master/docs/index.md" class="nav-link"><i class="fa fa-github"></i> Edit on GitHub</a>
                             </li>
                     </ul>
                 </div>
@@ -125,9 +128,9 @@
 <li><code>h5py</code>: A python package to read data from h5 files</li>
 <li><code>pyqt5</code>: The python wrapper of the qt5 GUI library</li>
 </ol>
-<p>The panel is made up of individual plots, the shot selector and the quick plot generator. The individual plots can either be <a href="./#How to make a custom plot?">customized plots</a> (implemented in the <code>user_plot.py</code> file) or it can be one of the tree different types of so-called quick plots (<code>Quick1DPlot</code>, <code>QuickWaterfallPlot</code> and <code>Quick2DPlot</code>). These allow the user to plot trends of the acquired data without having to write a special plotting function. For more information on the installation check our <a href="../installation/">installation page</a>.</p>
+<p>The panel is made up of individual plots, the shot selector and the quick plot generator. The individual plots can either be <a href="home.md#How to make a custom plot?">customized plots</a> (implemented in the <code>user_plot.py</code> file) or it can be one of the tree different types of so-called quick plots (<code>Quick1DPlot</code>, <code>QuickWaterfallPlot</code> and <code>Quick2DPlot</code>). These allow the user to plot trends of the acquired data without having to write a special plotting function. For more information on the installation check our <a href="installation/">installation page</a>.</p>
 <h1 id="shot-selector">Shot Selector</h1>
-<p><img alt="" src="../ShotSelector.PNG" /></p>
+<p><img alt="" src="ShotSelector.PNG" /></p>
 <p>In the shot selector one can specify for which shot/shots the data should be plotted. For plots that show data from a single shot, the slider or the text field on the left of it can be used to choose the shot. The index selector text field is used to specify the subset of shots to be show in the analysis plot panel. </p>
 <p>Examples:</p>
 <ul>
@@ -137,16 +140,16 @@
 </ul>
 <h1 id="quick-plot-generator">Quick Plot Generator</h1>
 <p>As the name suggest, the quick plot generator can be used to make quick plot. These can be used to show data of multiple shots in lyse in a fast way.</p>
-<p><img alt="" src="../QuickPlotGenerator.PNG" /></p>
+<p><img alt="" src="QuickPlotGenerator.PNG" /></p>
 <p>In order to generate a plot, one has to specify the title of the plot (here: 2D Example) and then press the right button to either generate a <code>Quick1DPlot</code>, <code>QuickWaterfallPlot</code> or <code>Quick2DPlot</code>.</p>
 <h2 id="quick1dplot">Quick1DPlot</h2>
-<p><img alt="" src="../Quick1DPlot.PNG" /></p>
+<p><img alt="" src="Quick1DPlot.PNG" /></p>
 <p>A quick 1D plot can show multiple plots of single valued results (a single number per shot). An example would be plotting atom number as a function of shot number. In the plot parameters section one can set the title, xlabel, ylabel and activate the grid. The units field should be filled with the units of the data (ex: s for second). The plot will then change the units that the ticks are as readable as possible (0.001s -&gt; 1 ms).</p>
 <h2 id="quick-waterfall-plot">Quick Waterfall Plot</h2>
-<p><img alt="" src="../QuickWaterfallPlot.PNG" /></p>
+<p><img alt="" src="QuickWaterfallPlot.PNG" /></p>
 <p>Quick waterfall plots allow the user to plot array-valued results as a function of single-valued results. The example above shows cavity spectra as a function of the shot number. The plot parameters are the same as for the <code>Quick1DPlot</code>. </p>
 <h2 id="quick-2d-plot">Quick 2D Plot</h2>
-<p><img alt="" src="../Quick2DPlot.PNG" /><code>Quick2DPlot</code>s are the similar to <code>Quick1DPlot</code>s. The difference is that they plot a single-valued result as a function of two other single-valued results.</p>
+<p><img alt="" src="Quick2DPlot.PNG" /><code>Quick2DPlot</code>s are the similar to <code>Quick1DPlot</code>s. The difference is that they plot a single-valued result as a function of two other single-valued results.</p>
 <h1 id="how-to-make-a-custom-plot">How to make a custom plot?</h1>
 <p>Each plot is made up of two parts, the Plot Widget and the Data Extractor. The Plot Widget specifies how the results are shown and the Data Extractors specify how the results are extracted from the h5 files. The usual template class <code>AnalysisPlot</code> (found in <code>__init__.py</code> file) consists of tree parts, the actual plot, a table to show single valued data (like atom numbers) and a title/warning field. For the plots the pyqtgraph library is used. In the following, I will go through the steps to make a new plot. I will explain this on the example of the <code>SpectrumPlot</code>that can be found in the <code>user_plots.py</code> file.</p>
 <h3 id="plotwidget">PlotWidget</h3>
@@ -218,12 +221,12 @@
             <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
         <script>
-            var base_url = "..",
+            var base_url = ".",
                 shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
         </script>
-        <script src="../js/base.js" defer></script>
+        <script src="js/base.js" defer></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" defer></script>
-        <script src="../search/main.js" defer></script>
+        <script src="search/main.js" defer></script>
 
         <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -291,3 +294,8 @@
 
     </body>
 </html>
+
+<!--
+MkDocs version : 1.1.2
+Build Date UTC : 2021-03-23 11:07:45.597236+00:00
+-->

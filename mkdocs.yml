@@ -1,4 +1,4 @@
-site_name: Anaysis Plot Panel documentation
+site_name: Anaysis Plot Panel
 nav:
     - Home: index.md
     - Installation: installation.md
@@ -9,17 +9,11 @@ extra_javascript:
 markdown_extensions:
     - mdx_math
     - admonition
+    - toc:
+        permalink: "#"
 
 repo_url: https://github.com/LQG-EPFL/analysis_plot_panel
 
 
 plugins:
 - search
-- mkdocstrings:
-    default_handler: python
-    handlers:
-      python:
-        rendering:
-          show_source: false
-    watch:
-      - src/analysis_plot_panel
