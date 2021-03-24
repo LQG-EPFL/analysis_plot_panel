@@ -8,12 +8,11 @@
         
         
         <link rel="shortcut icon" href="img/favicon.ico">
-        <title>Anaysis Plot Panel documentation</title>
+        <title>Anaysis Plot Panel</title>
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <link href="css/font-awesome.min.css" rel="stylesheet">
         <link href="css/base.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
-        <link href="assets/_mkdocstrings.css" rel="stylesheet">
 
         <script src="js/jquery-1.10.2.min.js" defer></script>
         <script src="js/bootstrap.min.js" defer></script>
@@ -24,7 +23,7 @@
     <body class="homepage">
         <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
             <div class="container">
-                <a class="navbar-brand" href=".">Anaysis Plot Panel documentation</a>
+                <a class="navbar-brand" href=".">Anaysis Plot Panel</a>
                 <!-- Expander button -->
                 <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
@@ -106,7 +105,7 @@
               </ul>
             </li>
             
-            <li class="nav-item" data-level="1"><a href="#how-to-make-a-custom-plot" class="nav-link">How to make a custom plot?</a>
+            <li class="nav-item" data-level="1"><a href="#make-a-custom-plot" class="nav-link">Make a Custom Plot</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-level="2"><a href="#add-plot-to-plot-panel" class="nav-link">Add plot to plot panel</a>
               <ul class="nav flex-column">
@@ -119,7 +118,7 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="what-is-the-analysis-plot-panel">What is the Analysis Plot Panel?</h1>
+<h1 id="what-is-the-analysis-plot-panel">What is the Analysis Plot Panel?<a class="headerlink" href="#what-is-the-analysis-plot-panel" title="Permanent link">#</a></h1>
 <p>The analysis plot panel is a tool to plot data produced from <a href="https://labscriptsuite.org/">labscript suite</a> based experiments in an fast end efficient way. It is directly linked to the lyse package using single-shot routines. </p>
 <p>The code has been developed by the <a href="https://www.epfl.ch/labs/lqg/">laboratory of quantum gases</a>. Check our <a href="https://github.com/LQG-EPFL">github page</a> for other useful tools.</p>
 <p>The module is based on three packages:</p>
@@ -128,8 +127,8 @@
 <li><code>h5py</code>: A python package to read data from h5 files</li>
 <li><code>pyqt5</code>: The python wrapper of the qt5 GUI library</li>
 </ol>
-<p>The panel is made up of individual plots, the shot selector and the quick plot generator. The individual plots can either be <a href="home.md#How to make a custom plot?">customized plots</a> (implemented in the <code>user_plot.py</code> file) or it can be one of the tree different types of so-called quick plots (<code>Quick1DPlot</code>, <code>QuickWaterfallPlot</code> and <code>Quick2DPlot</code>). These allow the user to plot trends of the acquired data without having to write a special plotting function. For more information on the installation check our <a href="installation/">installation page</a>.</p>
-<h1 id="shot-selector">Shot Selector</h1>
+<p>The panel is made up of individual plots, the shot selector and the quick plot generator. The individual plots can either be <a href=".#make-a-custom-plot">customized plots</a> (implemented in the <code>user_plot.py</code> file) or it can be one of the tree different types of so-called <a href=".#quick-plot-generator">quick plots</a> (<code>Quick1DPlot</code>, <code>QuickWaterfallPlot</code> and <code>Quick2DPlot</code>). These allow the user to plot trends of the acquired data without having to write a special plotting function. For more information on the installation check our <a href="installation/">installation page</a>.</p>
+<h1 id="shot-selector">Shot Selector<a class="headerlink" href="#shot-selector" title="Permanent link">#</a></h1>
 <p><img alt="" src="ShotSelector.PNG" /></p>
 <p>In the shot selector one can specify for which shot/shots the data should be plotted. For plots that show data from a single shot, the slider or the text field on the left of it can be used to choose the shot. The index selector text field is used to specify the subset of shots to be show in the analysis plot panel. </p>
 <p>Examples:</p>
@@ -138,21 +137,21 @@
 <li><code>2:5, -1</code> The selected indices are 2,3,4 and -1</li>
 <li><code>1:10:2</code> The selected indices are every odd number up to 10</li>
 </ul>
-<h1 id="quick-plot-generator">Quick Plot Generator</h1>
+<h1 id="quick-plot-generator">Quick Plot Generator<a class="headerlink" href="#quick-plot-generator" title="Permanent link">#</a></h1>
 <p>As the name suggest, the quick plot generator can be used to make quick plot. These can be used to show data of multiple shots in lyse in a fast way.</p>
 <p><img alt="" src="QuickPlotGenerator.PNG" /></p>
 <p>In order to generate a plot, one has to specify the title of the plot (here: 2D Example) and then press the right button to either generate a <code>Quick1DPlot</code>, <code>QuickWaterfallPlot</code> or <code>Quick2DPlot</code>.</p>
-<h2 id="quick1dplot">Quick1DPlot</h2>
+<h2 id="quick1dplot">Quick1DPlot<a class="headerlink" href="#quick1dplot" title="Permanent link">#</a></h2>
 <p><img alt="" src="Quick1DPlot.PNG" /></p>
 <p>A quick 1D plot can show multiple plots of single valued results (a single number per shot). An example would be plotting atom number as a function of shot number. In the plot parameters section one can set the title, xlabel, ylabel and activate the grid. The units field should be filled with the units of the data (ex: s for second). The plot will then change the units that the ticks are as readable as possible (0.001s -&gt; 1 ms).</p>
-<h2 id="quick-waterfall-plot">Quick Waterfall Plot</h2>
+<h2 id="quick-waterfall-plot">Quick Waterfall Plot<a class="headerlink" href="#quick-waterfall-plot" title="Permanent link">#</a></h2>
 <p><img alt="" src="QuickWaterfallPlot.PNG" /></p>
 <p>Quick waterfall plots allow the user to plot array-valued results as a function of single-valued results. The example above shows cavity spectra as a function of the shot number. The plot parameters are the same as for the <code>Quick1DPlot</code>. </p>
-<h2 id="quick-2d-plot">Quick 2D Plot</h2>
+<h2 id="quick-2d-plot">Quick 2D Plot<a class="headerlink" href="#quick-2d-plot" title="Permanent link">#</a></h2>
 <p><img alt="" src="Quick2DPlot.PNG" /><code>Quick2DPlot</code>s are the similar to <code>Quick1DPlot</code>s. The difference is that they plot a single-valued result as a function of two other single-valued results.</p>
-<h1 id="how-to-make-a-custom-plot">How to make a custom plot?</h1>
+<h1 id="make-a-custom-plot">Make a Custom Plot<a class="headerlink" href="#make-a-custom-plot" title="Permanent link">#</a></h1>
 <p>Each plot is made up of two parts, the Plot Widget and the Data Extractor. The Plot Widget specifies how the results are shown and the Data Extractors specify how the results are extracted from the h5 files. The usual template class <code>AnalysisPlot</code> (found in <code>__init__.py</code> file) consists of tree parts, the actual plot, a table to show single valued data (like atom numbers) and a title/warning field. For the plots the pyqtgraph library is used. In the following, I will go through the steps to make a new plot. I will explain this on the example of the <code>SpectrumPlot</code>that can be found in the <code>user_plots.py</code> file.</p>
-<h3 id="plotwidget">PlotWidget</h3>
+<h3 id="plotwidget">PlotWidget<a class="headerlink" href="#plotwidget" title="Permanent link">#</a></h3>
 <ol>
 <li>
 <p>Write a new class in the <code>user_plots.py</code> that inherits from the <code>AnalysisPlot</code> class. With the following things in the <code>__init__</code>:</p>
@@ -175,7 +174,7 @@
 <pre><code class="language-python">self.table.setData(tabledata)
 </code></pre>
 <p>For the generation of tabledata check the syntax of the <code>TableWidget</code> in pyqtgraph.</p>
-<h3 id="dataextractor">DataExtractor</h3>
+<h3 id="dataextractor">DataExtractor<a class="headerlink" href="#dataextractor" title="Permanent link">#</a></h3>
 <ol>
 <li>
 <p>Write a new class that inherits from <code>DataExtractor</code> in <code>user_data_extractors.py</code>. Specify in the <code>__init__</code> some identifying keyworks. (here: name and frametype of the spectrum). Like this the class 'knows' from which spectrum it should extract the data.</p>
@@ -211,7 +210,7 @@
             return freqs, n_photons #These are the arguments that are given to 
         # the update function of the PlotWidget.
 </code></pre>
-<h2 id="add-plot-to-plot-panel">Add plot to plot panel</h2>
+<h2 id="add-plot-to-plot-panel">Add plot to plot panel<a class="headerlink" href="#add-plot-to-plot-panel" title="Permanent link">#</a></h2>
 <p>The last step is to make sure  that the PlotWidget and DataExtractor are added to the analysis plot panel. For this one should call <code>fm.ap.add_plot_dock(plot_name, AnalyisPlot, DataExtractor).</code></p></div>
             </div>
         </div>
@@ -297,5 +296,5 @@
 
 <!--
 MkDocs version : 1.1.2
-Build Date UTC : 2021-03-23 11:07:45.597236+00:00
+Build Date UTC : 2021-03-24 07:11:21.151867+00:00
 -->
