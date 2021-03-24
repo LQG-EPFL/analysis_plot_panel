@@ -10,7 +10,7 @@ The analysis plot panel requires the following packages:
 
 - `lyse`: Installed with the labscript suite 
 - `pyqt5`: Installed with the labscript suite 
-- `pyqtgraph`: Installed with the labscript suite 
+- `pyqtgraph`: Installed with the labscript suite (version >= 0.11.1, if you installed labscript using conda`pyqtgraph` has to be updated. This requires and update of labscript afterwards as well. ) 
 - `h5py`: Installed with the labscript suite
 - `sortedcontainers`: pip install sortedcontainers
 - `scikit-image`: pip install skimage

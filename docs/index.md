@@ -2,6 +2,8 @@
 
 The analysis plot panel is a tool to plot data produced from [labscript suite](https://labscriptsuite.org/) based experiments in an fast end efficient way. It is directly linked to the lyse package using single-shot routines. 
 
+![](full.png)
+
 The code has been developed by the [laboratory of quantum gases](https://www.epfl.ch/labs/lqg/). Check our [github page](https://github.com/LQG-EPFL) for other useful tools.
 
 The module is based on three packages:
@@ -12,6 +14,9 @@ The module is based on three packages:
 
 The panel is made up of individual plots, the shot selector and the quick plot generator. The individual plots can either be [customized plots](index.md#make-a-custom-plot) (implemented in the `user_plot.py` file) or it can be one of the tree different types of so-called [quick plots](index.md#quick-plot-generator
 ) (`Quick1DPlot`, `QuickWaterfallPlot` and `Quick2DPlot`). These allow the user to plot trends of the acquired data without having to write a special plotting function. For more information on the installation check our [installation page](installation.md).
+
+!!! warning
+	![](closing_button.png) The closing button of the analysis plot panel window has been deavtivated since this leads to lyse getting corrupted and crashing. In order to close the window, you need to restart the lyse routine thread by right-clicking on it.
 
 # Shot Selector
 
