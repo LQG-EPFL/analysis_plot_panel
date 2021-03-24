@@ -2,7 +2,7 @@
 
 The analysis plot panel is a tool to plot data produced from [labscript suite](https://labscriptsuite.org/) based experiments in an fast end efficient way. It is directly linked to the lyse package using single-shot routines. 
 
-![](full.png)
+![](full.PNG)
 
 The code has been developed by the [laboratory of quantum gases](https://www.epfl.ch/labs/lqg/). Check our [github page](https://github.com/LQG-EPFL) for other useful tools.
 
