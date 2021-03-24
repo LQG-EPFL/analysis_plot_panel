@@ -9,14 +9,11 @@ The Analysis Plot Panel is though to be used as a single shot routine in lyse. I
 The analysis plot panel requires the following packages:
 
 - `lyse`: Installed with the labscript suite 
-
 - `pyqt5`: Installed with the labscript suite 
-
 - `pyqtgraph`: Installed with the labscript suite 
-
 - `h5py`: Installed with the labscript suite
-
 - `sortedcontainers`: pip install sortedcontainers
+- `scikit-image`: pip install skimage
 
 !!! warning 
 	All these packages should be installed in the correct python environment. Check the [installation guide of labscript](https://docs.labscriptsuite.org/en/stable/installation/setting-up-an-environment/#choosing-an-installation-method) for more details.
