@@ -149,7 +149,7 @@ class ImagingPlot(AnalysisPlot):
 
 class MultiSpectrumPlot(AnalysisPlot):
     def __init__(self, title, labels, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(title, **kwargs)
         
         self.labels = labels
         

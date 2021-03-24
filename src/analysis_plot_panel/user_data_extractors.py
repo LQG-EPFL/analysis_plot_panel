@@ -22,7 +22,7 @@ class FluoDataExtractor(DataExtractor):
                     
     def extract_data(self, h5_path , h5_file = None):
         
-        run = lyse.Run(h5_path)
+        run = lyse.Run(h5_path, no_write=True)
         
         imaging = self.imaging
         cam = self.cam
@@ -72,7 +72,7 @@ class AbsorptionDataExtractor(DataExtractor):
         
     def extract_data(self, h5_path, h5_file = None):
         
-        run = lyse.Run(h5_path)
+        run = lyse.Run(h5_path, no_write=True)
         
         imaging = self.imaging
         cam = self.cam
@@ -118,7 +118,7 @@ class SpectrumDataExtractor(DataExtractor):
         
     def extract_data(self, h5_path, h5_file = None):
         
-        run = lyse.Run(h5_path)
+        run = lyse.Run(h5_path, no_write=True)
         
         imaging = 'cavity_spectrum'
         

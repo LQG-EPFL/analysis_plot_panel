@@ -137,7 +137,7 @@ class ArrayDataExtractor(DataExtractor):
         self.idx = idx
         
     def extract_data(self, h5_path, h5_file = None):
-        run = lyse.Run(h5_path)
+        run = lyse.Run(h5_path, no_write=True)
         try:
             res = run.get_result_array(self.idx[0],self.idx[1], h5_file = h5_file)
         except:
@@ -152,7 +152,7 @@ class SingleDataExtractor(DataExtractor):
         self.idx = idx
         
     def extract_data(self, h5_path, h5_file = None):
-        run = lyse.Run(h5_path)
+        run = lyse.Run(h5_path, no_write=True)
         try:
             res = run.get_result(self.idx[0],self.idx[1], h5_file = h5_file)
         except:

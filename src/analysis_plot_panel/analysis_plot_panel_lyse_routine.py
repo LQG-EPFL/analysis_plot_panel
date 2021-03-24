@@ -43,32 +43,32 @@ if not hasattr(fm, 'ap'):
 
 
 
-# # Imaging Methods
-# imagings = ['fluo_imaging', 'absorption_imaging']
+# Imaging Methods
+imagings = ['fluo_imaging', 'absorption_imaging']
 
-# cams = {'fluo_imaging': ['Cam_fluorescence', 
-#                           'Cam_fluorescence_side'], 
-#         'absorption_imaging': ['Cam_absorption']}
+cams = {'fluo_imaging': ['Cam_fluorescence', 
+                          'Cam_fluorescence_side'], 
+        'absorption_imaging': ['Cam_absorption']}
 
 
-# imaging = 'fluo_imaging'
-# for cam in cams[imaging]:
-#     plot_name = imaging + ' ' + cam
+imaging = 'fluo_imaging'
+for cam in cams[imaging]:
+    plot_name = imaging + ' ' + cam
     
-#     if not plot_name in fm.ap.plots:
-#         ip = ImagingPlot(plot_name)
+    if not plot_name in fm.ap.plots:
+        ip = ImagingPlot(plot_name)
         
-#         fm.ap.add_plot_dock(plot_name, ip, FluoDataExtractor(imaging, cam))
+        fm.ap.add_plot_dock(plot_name, ip, FluoDataExtractor(imaging, cam))
         
         
-# imaging = 'absorption_imaging'
-# for cam in cams[imaging]:
-#     plot_name = imaging + ' ' + cam
+imaging = 'absorption_imaging'
+for cam in cams[imaging]:
+    plot_name = imaging + ' ' + cam
     
-#     if not plot_name in fm.ap.plots:        
-#         ip = ImagingPlot(plot_name)
+    if not plot_name in fm.ap.plots:        
+        ip = ImagingPlot(plot_name)
         
-#         fm.ap.add_plot_dock(plot_name, ip, AbsorptionDataExtractor(imaging, cam))
+        fm.ap.add_plot_dock(plot_name, ip, AbsorptionDataExtractor(imaging, cam))
 
 
 # Spectra
@@ -85,13 +85,15 @@ for spec_counter in range(len(last_globals['cavity_probe_names'])):
         
         fm.ap.add_plot_dock(spectrum_name, sp, SpectrumDataExtractorDict[spectrum_name])
 
-# if not 'MultiSpectrumPlot' in fm.ap.plots:
-#     msde = MultiDataExtractor(SpectrumDataExtractorDict)
+if not 'MultiSpectrumPlot' in fm.ap.plots:
+    msde = MultiDataExtractor()
+    for key in SpectrumDataExtractorDict:
+        msde[key] = SpectrumDataExtractorDict[key]
     
-#     msp = MultiSpectrumPlot('All Spectra', SpectrumDataExtractorDict.keys())
-#     msp.data_extractor = msde
+    msp = MultiSpectrumPlot('All Spectra', SpectrumDataExtractorDict.keys())
+    msp.data_extractor = msde
 
-#     fm.ap.add_plot_dock('MultiSpectrumPlot', msp, msde)
+    fm.ap.add_plot_dock('MultiSpectrumPlot', msp, msde)
 
 fm.ap.update_h5_paths(h5_paths)
 fm.ap.refresh(h5_path) 
