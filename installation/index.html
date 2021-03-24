@@ -126,6 +126,7 @@
 <p>All these packages should be installed in the correct python environment. Check the <a href="https://docs.labscriptsuite.org/en/stable/installation/setting-up-an-environment/#choosing-an-installation-method">installation guide of labscript</a> for more details.</p>
 </div>
 <h2 id="setup-of-lyse">Setup of lyse<a class="headerlink" href="#setup-of-lyse" title="Permanent link">#</a></h2>
+<p>To speedup the reading and writing of data to h5 files, it was necessary to rewrite the <code>__init__.py</code> file of the lyse package. Before, whenever one wanted to retrieve data from the h5 files, it would open the file and close it right after. This means that if you wanted 100s of results, it would open and close the file 100s of times. This took significantly more time than actually reading the data. In order to improve this, we added a key argument <code>h5_file = None</code> to all of the functions. If the argument is <code>None</code> the scripts will work as before. However, if it is given an h5_file, if will not open a new one, but retrieve the data from the file given. The new <code>__init__.py</code> file can be found in the <code>new_lyse_init</code> folder of this project.</p>
 <p>As a last step, the <code>analysis_plot_panel_lyse_routine.py</code> file should be loaded as a single shot routine in lyse:</p>
 <p><img alt="" src="../lyse_config.PNG" /></p></div>
             </div>
