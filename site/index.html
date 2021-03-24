@@ -120,6 +120,7 @@
 
 <h1 id="what-is-the-analysis-plot-panel">What is the Analysis Plot Panel?<a class="headerlink" href="#what-is-the-analysis-plot-panel" title="Permanent link">#</a></h1>
 <p>The analysis plot panel is a tool to plot data produced from <a href="https://labscriptsuite.org/">labscript suite</a> based experiments in an fast end efficient way. It is directly linked to the lyse package using single-shot routines. </p>
+<p><img alt="" src="full.png" /></p>
 <p>The code has been developed by the <a href="https://www.epfl.ch/labs/lqg/">laboratory of quantum gases</a>. Check our <a href="https://github.com/LQG-EPFL">github page</a> for other useful tools.</p>
 <p>The module is based on three packages:</p>
 <ol>
@@ -128,6 +129,10 @@
 <li><code>pyqt5</code>: The python wrapper of the qt5 GUI library</li>
 </ol>
 <p>The panel is made up of individual plots, the shot selector and the quick plot generator. The individual plots can either be <a href=".#make-a-custom-plot">customized plots</a> (implemented in the <code>user_plot.py</code> file) or it can be one of the tree different types of so-called <a href=".#quick-plot-generator">quick plots</a> (<code>Quick1DPlot</code>, <code>QuickWaterfallPlot</code> and <code>Quick2DPlot</code>). These allow the user to plot trends of the acquired data without having to write a special plotting function. For more information on the installation check our <a href="installation/">installation page</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><img alt="" src="closing_button.png" /> The closing button of the analysis plot panel window has been deavtivated since this leads to lyse getting corrupted and crashing. In order to close the window, you need to restart the lyse routine thread by right-clicking on it.</p>
+</div>
 <h1 id="shot-selector">Shot Selector<a class="headerlink" href="#shot-selector" title="Permanent link">#</a></h1>
 <p><img alt="" src="ShotSelector.PNG" /></p>
 <p>In the shot selector one can specify for which shot/shots the data should be plotted. For plots that show data from a single shot, the slider or the text field on the left of it can be used to choose the shot. The index selector text field is used to specify the subset of shots to be show in the analysis plot panel. </p>
@@ -296,5 +301,5 @@
 
 <!--
 MkDocs version : 1.1.2
-Build Date UTC : 2021-03-24 10:21:20.822098+00:00
+Build Date UTC : 2021-03-24 10:49:11.509555+00:00
 -->
