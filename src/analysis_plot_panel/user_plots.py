@@ -214,7 +214,7 @@ class SpectrumPlot(AnalysisPlot):
         self.maxrate = pg.InfiniteLine(angle=0, pen=pg.mkPen(style=QtCore.Qt.DashLine))
         self.maximal_count_rate = maximal_count_rate
         
-        self.plot.addItem(self.maxrate)
+        self.plot.addItem(self.maxrate, ignoreBounds = True)
         
         f = lambda x: x
         
