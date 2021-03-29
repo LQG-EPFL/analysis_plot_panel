@@ -155,3 +155,41 @@ class SpectrumDataExtractor(DataExtractor):
             freqs, n_photons, omega0, kappa, A, offset, f0, f1, duration,tabledata, warning = np.array([0.,1.]), np.array([0.,1.]), 0., 0., 0., 0.,0., 1, 1,np.arange(2,dtype = 'float64'), 'no data in shot'
             
         return freqs, n_photons, omega0, kappa, A, offset, f0, f1, duration, tabledata , warning
+        
+class ScopeDataExtractor(DataExtractor):
+    def __init__(self, name, frametype, **kwargs):
+        
+        super().__init__(**kwargs)
+        
+        self.name = name
+        self.frametype = frametype
+        
+        
+    def extract_data(self, h5_path, h5_file = None):
+        
+        run = lyse.Run(h5_path, no_write=True)
+        
+        imaging = 'scope_Pico'
+        
+        name = self.name
+        frametype = self.frametype
+        
+        spectrum_name = name
+        
+        try:
+            
+            sig_type = run.get_result(imaging, spectrum_name+' sig_type', h5_file = h5_file)
+            
+            tabledata = np.array([], dtype = [])
+            
+            volts = run.get_result_array(imaging, spectrum_name+' volts', h5_file = h5_file)
+            times = run.get_result_array(imaging, spectrum_name+' times', h5_file = h5_file)
+            
+            warning = run.get_result(imaging, spectrum_name+' warning')
+        except:
+            import traceback
+            traceback.print_exc()
+            volts, times, warning = np.array([0.,1.]),np.array([0.,1.]),'no data in shot'
+            tabledata, sig_type = np.array([], dtype = []), 'trace'
+            
+        return volts, times , tabledata, sig_type, warning

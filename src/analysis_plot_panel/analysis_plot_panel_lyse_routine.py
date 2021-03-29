@@ -9,8 +9,8 @@ import numpy as np
 
 from __init__ import AnalysisPlotPanel
 
-from user_plots import ImagingPlot, SpectrumPlot, MultiSpectrumPlot
-from user_data_extractors import FluoDataExtractor, AbsorptionDataExtractor, SpectrumDataExtractor
+from user_plots import ImagingPlot, SpectrumPlot, MultiSpectrumPlot, TracePlot
+from user_data_extractors import FluoDataExtractor, AbsorptionDataExtractor, SpectrumDataExtractor, ScopeDataExtractor
 from data_extractors import MultiDataExtractor
 
 
@@ -94,6 +94,18 @@ if not 'MultiSpectrumPlot' in fm.ap.plots:
     msp.data_extractor = msde
 
     fm.ap.add_plot_dock('MultiSpectrumPlot', msp, msde)
+
+# Scope traces
+ScopeDataExtractorDict = {}
+names = last_globals['trace_names']
+for name in names :
+    frametype = ''
+    spectrum_name = name+' '+frametype
+
+    if not spectrum_name in fm.ap.plots:
+        tp = TracePlot(spectrum_name)
+        ScopeDataExtractorDict[spectrum_name] = ScopeDataExtractor(name, frametype)
+        fm.ap.add_plot_dock(spectrum_name, tp, ScopeDataExtractorDict[spectrum_name])
 
 fm.ap.update_h5_paths(h5_paths)
 fm.ap.refresh(h5_path) 

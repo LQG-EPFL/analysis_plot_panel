@@ -276,7 +276,7 @@ warning = {}
 # cam_names = ['Cam_fluorescence']
 
 
-for cam in cam_names:
+for i,cam in enumerate(cam_names):
     #I = raw_imgs[cam]
     
     warning[cam] = ''
@@ -284,8 +284,11 @@ for cam in cam_names:
     print (f'Anaysis of data of camera {cam}')
     
     # Extract the images 'before' and 'after' generated from camera.expose
-    fluo_atoms, fluo_no_atoms,fluo_no_atoms2 = run.get_images(cam, 'MOT fluo', 'atoms', 'no atoms' , 'no atoms2')
-
+    try:
+        fluo_atoms, fluo_no_atoms,fluo_no_atoms2 = run.get_images(cam, 'MOT fluo', 'atoms', 'no atoms' , 'no atoms2')
+    except:
+        del cam_names[i]
+        continue
     fluo_atoms = np.array(fluo_atoms, dtype = 'float')
     fluo_no_atoms = np.array(fluo_no_atoms, dtype = 'float')
     fluo_no_atoms2 = np.array(fluo_no_atoms2, dtype = 'float')

@@ -35,7 +35,7 @@ else:
 run = lyse.Run(h5_path)
 
 
-debug=False#run_globals['debug_abs_imaging']
+debug= False#run_globals['debug_abs_imaging']
 use_matplotlib = False
 
 #################################################################

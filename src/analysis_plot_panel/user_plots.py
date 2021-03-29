@@ -282,3 +282,43 @@ class SpectrumPlot(AnalysisPlot):
         
         self.plot.vb.sigYRangeChanged.connect(update_secondary_yaxis)
         self.plot.vb.sigResized.connect(update_secondary_yaxis)
+        
+class TracePlot(AnalysisPlot):
+    def __init__(self, title, **kwargs):
+        super().__init__(title, **kwargs)
+
+        self.setMinimumHeight(200)
+        self.setMinimumWidth(400)
+        
+        self.plot = self.plots.addPlot()
+        
+        self.trace = self.plot.plot(pen=pg.mkPen(style=QtCore.Qt.DashLine,width=2, color = color_palette[1], ))
+
+        self.plot.setLabel('bottom', 'times', units = 's')
+        self.plot.setLabel('left', 'volts', units = 'mV')
+        
+        
+        
+    def update(self,volts, times, tabledata, sig_type, warning): 
+        #update_plot        
+        # print(type(volts))
+        volts_=np.array([])
+        if sig_type == 'fft' :
+            self.plot.setLabel('bottom', 'freqs', units = 'Hz')
+            self.plot.setLabel('left', 'Magnitude', units = 'dB')
+            # self.plot.setLogMode(False,True)
+            volts = 10*np.log(volts)
+            
+        elif sig_type == 'trace' :
+            self.plot.setLabel('bottom', 'times', units = 's')
+            self.plot.setLabel('left', 'volts', units = 'V')
+            self.plot.setLogMode(False,False)
+            volts = volts/1e3
+        
+        self.trace.setData(times, volts)
+        
+        
+        #update table and warning
+        self.table.setData(tabledata)
+        self.update_warning(warning)
+        
