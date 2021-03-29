@@ -150,12 +150,17 @@ class SingleDataExtractor(DataExtractor):
     def __init__(self,idx,  **kwargs):
         super().__init__(**kwargs)
         self.idx = idx
+        print (len(idx))
         
     def extract_data(self, h5_path, h5_file = None):
         run = lyse.Run(h5_path, no_write=True)
         try:
-            res = run.get_result(self.idx[0],self.idx[1], h5_file = h5_file)
+            if len(self.idx) == 1:
+                res = run.get_global(self.idx[0], h5_file = h5_file)
+            else:
+                res = run.get_result(self.idx[0],self.idx[1], h5_file = h5_file)
         except:
+            raise
             res = None
         
         return res 

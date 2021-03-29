@@ -167,7 +167,7 @@ class ShotSelector(pg.LayoutWidget):
         
 class AnalysisPlotPanel(QtGui.QMainWindow):
     
-    def __init__(self, h5_paths,**kwargs):
+    def __init__(self, h5_paths, n_rows = 3, **kwargs):
         
         self.h5_paths = h5_paths
         
@@ -175,6 +175,7 @@ class AnalysisPlotPanel(QtGui.QMainWindow):
         
         pg.mkQApp()
         
+        self.n_rows = n_rows
         
         self.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False)
         self.area = DockArea()
@@ -214,12 +215,22 @@ class AnalysisPlotPanel(QtGui.QMainWindow):
             
             dock.sigClosed.connect(self.remove_plot)
             dock.addWidget(plot_widget)
+            if len(self.plots):
+                if len(self.plots) % self.n_rows == 2:
+                    position = 'right'
+                    self.area.addDock(dock, position)
+                if len(self.plots) %(self.n_rows*2) in  [0, 1]:
+                    position = 'bottom'
+                    self.area.addDock(dock, position, relativeTo= self.area.docks[list(self.plots.keys())[-1]])
+                if len(self.plots) %(self.n_rows*2) in  [3, 4]:
+                    position = 'top'
+                    self.area.addDock(dock, position, relativeTo= self.area.docks[list(self.plots.keys())[-1]])
+                print (len(self.plots) %(self.n_rows*2), len(self.plots) %self.n_rows)
+            else:
+                self.area.addDock(dock, 'right')
             
-            self.area.addDock(dock, 'right')
             
             self.plots[plot_name] = plot_widget
-            
-            
         else:
             print (f'Plot {plot_name} already exists. Please choose different name.')
     
